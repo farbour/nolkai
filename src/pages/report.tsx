@@ -1,7 +1,9 @@
 import { ProcessedData, processReportData } from '@/utils/reportDataProcessor';
 // file path: src/pages/report.tsx
 import React, { useEffect, useState } from 'react';
-import ReportSection, { DataTable, MetricCard } from '@/components/ReportSection';
+import ReportSection, { MetricCard } from '@/components/ReportSection';
+
+import { SortableTable } from '@/components/SortableTable';
 
 const Report = () => {
   const [reportData, setReportData] = useState<ProcessedData | null>(null);
@@ -93,18 +95,18 @@ const Report = () => {
               change={reportData.metrics.netProfit.change}
             />
           </div>
-          <DataTable headers={reportData.kpiData.headers} data={reportData.kpiData.data} />
+          <SortableTable headers={reportData.kpiData.headers} data={reportData.kpiData.data} />
         </ReportSection>
 
         <ReportSection title="3. Supply Chain Performance">
-          <DataTable
+          <SortableTable
             headers={reportData.supplyData.headers}
             data={reportData.supplyData.data}
           />
         </ReportSection>
 
         <ReportSection title="4. Customer Satisfaction Metrics">
-          <DataTable
+          <SortableTable
             headers={reportData.satisfactionData.headers}
             data={reportData.satisfactionData.data}
           />

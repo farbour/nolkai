@@ -10,6 +10,8 @@ import {
 // file path: src/pages/overview.tsx
 import React, { useEffect, useMemo, useState } from 'react';
 
+import { SortableTable } from '@/components/SortableTable';
+
 interface CSVRow {
   Brand: string;
   'KPI Name': string;
@@ -283,50 +285,16 @@ const OverviewPage: React.FC = () => {
             </h3>
           </div>
           <div className="px-6 py-5">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Brand
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Revenue
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Margin
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Orders
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Conversion Rate
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {brandMetrics.map((brand) => (
-                    <tr key={brand.brand} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {brand.brand}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
-                        {formatValue(brand.revenue, 'currency')}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
-                        {formatValue(brand.margin, 'currency')}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
-                        {formatValue(brand.orders, 'number')}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
-                        {formatValue(brand.conversion, 'percentage')}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <SortableTable
+              headers={['Brand', 'Revenue', 'Margin', 'Orders', 'Conversion Rate']}
+              data={brandMetrics.map(brand => [
+                brand.brand,
+                formatValue(brand.revenue, 'currency'),
+                formatValue(brand.margin, 'currency'),
+                formatValue(brand.orders, 'number'),
+                formatValue(brand.conversion, 'percentage')
+              ])}
+            />
           </div>
         </div>
       </div>
