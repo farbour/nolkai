@@ -44,37 +44,32 @@ const Presentation: React.FC<PresentationProps> = ({ slides }) => {
   }, [currentSlide]);
 
   return (
-    <div className="fixed inset-0 bg-gray-900">
-      <div className="relative h-screen w-screen overflow-hidden">
-        {/* Presentation Background */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(55,65,81,1)_0%,rgba(17,24,39,1)_100%)]" />
-        
-        {/* Slides Container */}
-        <div className="relative h-full w-full flex items-center justify-center">
-          {slides.map((slide, index) => (
-            <Slide
-              key={slide.id}
-              content={{
-                ...slide,
-                slideNumber: index + 1,
-                totalSlides: slides.length
-              }}
-              isActive={currentSlide === index}
-            />
-          ))}
-        </div>
-
-        {/* Controls */}
-        <SlideControls
-          currentSlide={currentSlide}
-          totalSlides={slides.length}
-          onNext={handleNext}
-          onPrev={handlePrev}
-          onSlideSelect={handleSlideSelect}
-          isEditMode={isEditMode}
-          onToggleEditMode={() => setIsEditMode(!isEditMode)}
-        />
+    <div className="relative min-h-screen bg-gray-100">
+      {/* Main presentation area */}
+      <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden">
+        {slides.map((slide, index) => (
+          <Slide
+            key={slide.id}
+            content={{
+              ...slide,
+              slideNumber: index + 1,
+              totalSlides: slides.length
+            }}
+            isActive={currentSlide === index}
+          />
+        ))}
       </div>
+
+      {/* Controls */}
+      <SlideControls
+        currentSlide={currentSlide}
+        totalSlides={slides.length}
+        onNext={handleNext}
+        onPrev={handlePrev}
+        onSlideSelect={handleSlideSelect}
+        isEditMode={isEditMode}
+        onToggleEditMode={() => setIsEditMode(!isEditMode)}
+      />
     </div>
   );
 };
