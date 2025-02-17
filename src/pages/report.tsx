@@ -1,12 +1,15 @@
-import { ProcessedData, processReportData } from '@/utils/reportDataProcessor';
 // file path: src/pages/report.tsx
+import { ProcessedData, processReportData } from '@/utils/reportDataProcessor';
 import React, { useEffect, useState } from 'react';
 import ReportSection, { MetricCard } from '@/components/ReportSection';
 
+import Presentation from '@/components/presentation/Presentation';
+import { SlideContent } from '@/components/presentation/Slide';
 import { SortableTable } from '@/components/SortableTable';
 
 const Report = () => {
   const [reportData, setReportData] = useState<ProcessedData | null>(null);
+  const [isPresentationMode, setIsPresentationMode] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,23 +65,29 @@ const Report = () => {
 
   const executiveSummaryPoints = getExecutiveSummaryPoints();
 
-  return (
-    <div className="space-y-6">
-        <ReportSection title="1. Executive Summary">
-          <div className="space-y-4">
-            {executiveSummaryPoints.map((point, index) => (
-              <div key={index} className="flex items-start space-x-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-nolk-green text-white flex items-center justify-center font-semibold">
-                  {index + 1}
-                </div>
-                <p className="text-gray-700 text-lg mt-1">{point}</p>
+  const slides: SlideContent[] = [
+    {
+      id: 'executive-summary',
+      title: '1. Executive Summary',
+      content: (
+        <div className="space-y-4">
+          {executiveSummaryPoints.map((point, index) => (
+            <div key={index} className="flex items-start space-x-3">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-nolk-green text-white flex items-center justify-center font-semibold">
+                {index + 1}
               </div>
-            ))}
-          </div>
-        </ReportSection>
-
-        <ReportSection title="2. Key Performance Indicators (KPIs)">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <p className="text-gray-700 text-lg mt-1">{point}</p>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    {
+      id: 'kpis',
+      title: '2. Key Performance Indicators (KPIs)',
+      content: (
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <MetricCard
               title="Total Revenue"
               value={reportData.metrics.revenue.value}
@@ -96,22 +105,54 @@ const Report = () => {
             />
           </div>
           <SortableTable headers={reportData.kpiData.headers} data={reportData.kpiData.data} />
-        </ReportSection>
+        </div>
+      ),
+    },
+    {
+      id: 'supply-chain',
+      title: '3. Supply Chain Performance',
+      content: (
+        <SortableTable
+          headers={reportData.supplyData.headers}
+          data={reportData.supplyData.data}
+        />
+      ),
+    },
+    {
+      id: 'customer-satisfaction',
+      title: '4. Customer Satisfaction Metrics',
+      content: (
+        <SortableTable
+          headers={reportData.satisfactionData.headers}
+          data={reportData.satisfactionData.data}
+        />
+      ),
+    },
+  ];
 
-        <ReportSection title="3. Supply Chain Performance">
-          <SortableTable
-            headers={reportData.supplyData.headers}
-            data={reportData.supplyData.data}
-          />
-        </ReportSection>
-
-        <ReportSection title="4. Customer Satisfaction Metrics">
-          <SortableTable
-            headers={reportData.satisfactionData.headers}
-            data={reportData.satisfactionData.data}
-          />
-        </ReportSection>
+  return (
+    <div>
+      <div className="mb-6 flex justify-end">
+        <button
+          onClick={() => setIsPresentationMode(!isPresentationMode)}
+          className="px-4 py-2 bg-nolk-green text-white rounded-lg hover:opacity-90 transition-colors"
+        >
+          {isPresentationMode ? 'Exit Presentation' : 'Start Presentation'}
+        </button>
       </div>
+
+      {isPresentationMode ? (
+        <Presentation slides={slides} />
+      ) : (
+        <div className="space-y-6">
+          {slides.map((slide) => (
+            <ReportSection key={slide.id} title={slide.title}>
+              {slide.content}
+            </ReportSection>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 
