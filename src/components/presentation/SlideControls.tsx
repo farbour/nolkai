@@ -1,20 +1,22 @@
 import {
+  ArrowDownTrayIcon,
+  ArrowPathIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   EyeIcon,
-  PencilIcon
+  PencilIcon,
+  PlusIcon,
+  PresentationChartBarIcon
 } from '@heroicons/react/24/outline';
 
 // file path: src/components/presentation/SlideControls.tsx
 import React from 'react';
-import { motion } from 'framer-motion';
 
 interface SlideControlsProps {
   currentSlide: number;
   totalSlides: number;
   onNext: () => void;
   onPrev: () => void;
-  onSlideSelect: (index: number) => void;
   isEditMode: boolean;
   onToggleEditMode: () => void;
 }
@@ -24,75 +26,109 @@ const SlideControls: React.FC<SlideControlsProps> = ({
   totalSlides,
   onNext,
   onPrev,
-  onSlideSelect,
   isEditMode,
   onToggleEditMode,
 }) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Navigation Controls */}
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={onPrev}
-            disabled={currentSlide === 0}
-            className="p-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
-            title="Previous Slide (←)"
-          >
-            <ChevronLeftIcon className="w-5 h-5 text-gray-700" />
+    <div className="h-16 bg-white border-b border-gray-200">
+      {/* Main Toolbar */}
+      <div className="h-full flex items-center px-4">
+        {/* Left Section - File-like buttons */}
+        <div className="flex items-center space-x-2 pr-4 border-r border-gray-200">
+          <button className="px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded">
+            File
           </button>
-
-          <div className="flex items-center space-x-2">
-            {Array.from({ length: totalSlides }).map((_, index) => (
-              <motion.button
-                key={index}
-                onClick={() => onSlideSelect(index)}
-                className={`w-2 h-2 rounded-full ${
-                  currentSlide === index 
-                    ? 'bg-blue-600' 
-                    : 'bg-gray-300 hover:bg-gray-400'
-                }`}
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-              />
-            ))}
-          </div>
-
-          <button
-            onClick={onNext}
-            disabled={currentSlide === totalSlides - 1}
-            className="p-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
-            title="Next Slide (→)"
-          >
-            <ChevronRightIcon className="w-5 h-5 text-gray-700" />
+          <button className="px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded">
+            Edit
+          </button>
+          <button className="px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded">
+            View
+          </button>
+          <button className="px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded">
+            Insert
           </button>
         </div>
 
-        {/* Right Side Controls */}
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-600">
-            {currentSlide + 1} / {totalSlides}
-          </span>
+        {/* Center Section - Main Controls */}
+        <div className="flex items-center space-x-4 px-4">
+          {/* Undo/Redo */}
+          <div className="flex items-center space-x-1">
+            <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg" title="Undo (⌘Z)">
+              <ArrowPathIcon className="w-4 h-4 rotate-180" />
+            </button>
+            <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg" title="Redo (⌘⇧Z)">
+              <ArrowPathIcon className="w-4 h-4" />
+            </button>
+          </div>
 
+          {/* Navigation */}
+          <div className="flex items-center space-x-1 border-l border-r border-gray-200 px-4">
+            <button
+              onClick={onPrev}
+              disabled={currentSlide === 0}
+              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Previous Slide (←)"
+            >
+              <ChevronLeftIcon className="w-4 h-4" />
+            </button>
+            <span className="text-sm text-gray-600 min-w-[3rem] text-center">
+              {currentSlide + 1} / {totalSlides}
+            </span>
+            <button
+              onClick={onNext}
+              disabled={currentSlide === totalSlides - 1}
+              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Next Slide (→)"
+            >
+              <ChevronRightIcon className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Add Slide */}
+          <button 
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+            title="Add Slide"
+          >
+            <PlusIcon className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Right Section - Mode Controls */}
+        <div className="flex items-center space-x-3 ml-auto">
           <button
             onClick={onToggleEditMode}
-            className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
+            className={`px-3 py-1.5 rounded-lg flex items-center space-x-2 text-sm ${
               isEditMode
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'text-gray-700 hover:bg-gray-100'
             }`}
           >
             {isEditMode ? (
               <>
                 <EyeIcon className="w-4 h-4" />
-                <span>View</span>
+                <span>View Mode</span>
               </>
             ) : (
               <>
                 <PencilIcon className="w-4 h-4" />
-                <span>Edit</span>
+                <span>Edit Mode</span>
               </>
             )}
+          </button>
+
+          <button 
+            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg flex items-center space-x-2 text-sm hover:bg-blue-700"
+            title="Start Presentation (⌘F5)"
+          >
+            <PresentationChartBarIcon className="w-4 h-4" />
+            <span>Present</span>
+          </button>
+
+          <button 
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+            title="Download"
+          >
+            <ArrowDownTrayIcon className="w-4 h-4" />
           </button>
         </div>
       </div>
