@@ -5,7 +5,7 @@ import Slide from './Slide';
 import { SlideContent } from './Slide';
 import SlideControls from './SlideControls';
 import SlideThumbnail from './SlideThumbnail';
-import { captureSlideSnapshot } from '../../utils/slideSnapshot';
+import { useSlideSnapshots } from '../../hooks/useSlideSnapshots';
 
 interface PresentationProps {
   slides: SlideContent[];
@@ -18,40 +18,33 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides }) =>
   const [isPresentationMode, setIsPresentationMode] = useState(false);
   const [undoStack, setUndoStack] = useState<SlideContent[][]>([]);
   const [redoStack, setRedoStack] = useState<SlideContent[][]>([]);
-  const [snapshots, setSnapshots] = useState<Record<string, string>>({});
   
-  // Refs for slide elements
   const slideRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const {
+    snapshots,
+    generateSnapshot,
+    clearAllSnapshots,
+    isGenerating
+  } = useSlideSnapshots();
 
   // Update snapshots when slides change
   useEffect(() => {
-    const updateSnapshots = async () => {
-      const newSnapshots: Record<string, string> = {};
-      
-      for (const slide of slides) {
-        const slideElement = slideRefs.current[slide.id];
-        if (slideElement) {
-          try {
-            const snapshot = await captureSlideSnapshot(slideElement);
-            if (snapshot) {
-              newSnapshots[slide.id] = snapshot;
-            }
-          } catch (error) {
-            console.error('Error capturing snapshot for slide:', slide.id, error);
-          }
+    if (!isGenerating) {
+      slides.forEach(slide => {
+        const element = slideRefs.current[slide.id];
+        if (element) {
+          generateSnapshot(slide.id, element);
         }
-      }
+      });
+    }
+  }, [slides, generateSnapshot, isGenerating]);
 
-      setSnapshots(prev => ({
-        ...prev,
-        ...newSnapshots
-      }));
+  // Clear snapshots when unmounting
+  useEffect(() => {
+    return () => {
+      clearAllSnapshots();
     };
-
-    // Small delay to ensure slides are rendered
-    const timeoutId = setTimeout(updateSnapshots, 100);
-    return () => clearTimeout(timeoutId);
-  }, [slides, currentSlide]);
+  }, [clearAllSnapshots]);
 
   // Navigation handlers
   const handleNext = useCallback(() => {
