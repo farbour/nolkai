@@ -19,8 +19,15 @@ export function useSlideSnapshots() {
 
   // Initialize worker
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window === 'undefined') return;
+
+    try {
       workerRef.current = new Worker('/snapshotWorker.js');
+
+      workerRef.current.onerror = (error) => {
+        console.error('Worker error:', error);
+        setIsGenerating(false);
+      };
 
       workerRef.current.onmessage = (event: MessageEvent<SnapshotWorkerMessage>) => {
         const { success, snapshot, error, slideId } = event.data;
@@ -39,15 +46,19 @@ export function useSlideSnapshots() {
           }
         }
 
-        // Check if all pending snapshots are complete
         if (pendingSnapshotsRef.current.size === 0) {
           setIsGenerating(false);
         }
       };
 
       return () => {
-        workerRef.current?.terminate();
+        if (workerRef.current) {
+          workerRef.current.terminate();
+          workerRef.current = null;
+        }
       };
+    } catch (error) {
+      console.error('Failed to initialize worker:', error);
     }
   }, []);
 
@@ -75,10 +86,11 @@ export function useSlideSnapshots() {
         logging: false,
         useCORS: true,
         scale: 1, // Capture at full resolution
+        removeContainer: true, // Clean up temporary elements
       });
 
       // Get the image data
-      const imageData = canvas.toDataURL('image/png');
+      const imageData = canvas.toDataURL('image/png', 1);
 
       // Send to worker for scaling
       workerRef.current.postMessage({
@@ -107,6 +119,7 @@ export function useSlideSnapshots() {
     setSnapshots({});
     snapshotCacheRef.current = {};
     pendingSnapshotsRef.current.clear();
+    setIsGenerating(false);
   }, []);
 
   return {

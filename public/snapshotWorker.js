@@ -9,8 +9,8 @@ self.onmessage = async (event) => {
     const bitmap = await createImageBitmap(blob);
 
     // Create scaled canvas
-    const scaledWidth = bitmap.width * scale;
-    const scaledHeight = bitmap.height * scale;
+    const scaledWidth = Math.round(bitmap.width * scale);
+    const scaledHeight = Math.round(bitmap.height * scale);
     const canvas = new OffscreenCanvas(scaledWidth, scaledHeight);
     const ctx = canvas.getContext('2d');
 
@@ -18,29 +18,27 @@ self.onmessage = async (event) => {
       throw new Error('Could not get canvas context');
     }
 
+    // Enable image smoothing for better quality
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
     // Draw scaled image
     ctx.drawImage(bitmap, 0, 0, scaledWidth, scaledHeight);
     
-    // Convert to blob
-    const resultBlob = await canvas.convertToBlob({ type: 'image/png' });
+    // Get the image data URL directly from canvas
+    const snapshot = canvas.toDataURL('image/png', 0.8);
     
-    // Convert blob to base64
-    const reader = new FileReader();
-    const snapshot = await new Promise((resolve, reject) => {
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(resultBlob);
-    });
-
     // Clean up
     bitmap.close();
 
+    // Send the scaled image back
     self.postMessage({ 
       success: true, 
       snapshot,
       slideId
     });
   } catch (error) {
+    console.error('Worker error:', error);
     self.postMessage({ 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error',
