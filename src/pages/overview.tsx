@@ -10,8 +10,6 @@ import {
 // file path: src/pages/overview.tsx
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { Layout } from '../components/Layout';
-
 interface CSVRow {
   Brand: string;
   'KPI Name': string;
@@ -211,36 +209,31 @@ const OverviewPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-nolk-green mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading data...</p>
-          </div>
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-nolk-green mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading data...</p>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Layout>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <p className="text-red-800">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-4 px-4 py-2 bg-red-100 text-red-800 rounded hover:bg-red-200 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      </Layout>
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <p className="text-red-800">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-red-100 text-red-800 rounded hover:bg-red-200 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="space-y-8">
+    <div className="space-y-8">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold text-nolk-green">Brand Performance Overview</h2>
           <div className="flex gap-4">
@@ -337,7 +330,6 @@ const OverviewPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </Layout>
   );
 };
 

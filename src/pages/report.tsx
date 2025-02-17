@@ -3,8 +3,6 @@ import { ProcessedData, processReportData } from '@/utils/reportDataProcessor';
 import React, { useEffect, useState } from 'react';
 import ReportSection, { DataTable, MetricCard } from '@/components/ReportSection';
 
-import { Layout } from '@/components/Layout';
-
 const Report = () => {
   const [reportData, setReportData] = useState<ProcessedData | null>(null);
 
@@ -25,11 +23,9 @@ const Report = () => {
 
   if (!reportData) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-nolk-green"></div>
-        </div>
-      </Layout>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-nolk-green"></div>
+      </div>
     );
   }
 
@@ -65,8 +61,7 @@ const Report = () => {
   const executiveSummaryPoints = getExecutiveSummaryPoints();
 
   return (
-    <Layout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <ReportSection title="1. Executive Summary">
           <div className="space-y-4">
             {executiveSummaryPoints.map((point, index) => (
@@ -115,7 +110,6 @@ const Report = () => {
           />
         </ReportSection>
       </div>
-    </Layout>
   );
 };
 
