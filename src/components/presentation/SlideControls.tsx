@@ -6,7 +6,8 @@ import {
   EyeIcon,
   PencilIcon,
   PlusIcon,
-  PresentationChartBarIcon
+  PresentationChartBarIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 
 // file path: src/components/presentation/SlideControls.tsx
@@ -19,6 +20,13 @@ interface SlideControlsProps {
   onPrev: () => void;
   isEditMode: boolean;
   onToggleEditMode: () => void;
+  onAddSlide: () => void;
+  onDeleteSlide: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  onPresent: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
 }
 
 const SlideControls: React.FC<SlideControlsProps> = ({
@@ -28,6 +36,13 @@ const SlideControls: React.FC<SlideControlsProps> = ({
   onPrev,
   isEditMode,
   onToggleEditMode,
+  onAddSlide,
+  onDeleteSlide,
+  onUndo,
+  onRedo,
+  onPresent,
+  canUndo,
+  canRedo,
 }) => {
   return (
     <div className="h-16 bg-white border-b border-gray-200">
@@ -53,10 +68,20 @@ const SlideControls: React.FC<SlideControlsProps> = ({
         <div className="flex items-center space-x-4 px-4">
           {/* Undo/Redo */}
           <div className="flex items-center space-x-1">
-            <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg" title="Undo (⌘Z)">
+            <button 
+              onClick={onUndo}
+              disabled={!canUndo}
+              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" 
+              title="Undo (⌘Z)"
+            >
               <ArrowPathIcon className="w-4 h-4 rotate-180" />
             </button>
-            <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg" title="Redo (⌘⇧Z)">
+            <button 
+              onClick={onRedo}
+              disabled={!canRedo}
+              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" 
+              title="Redo (⌘⇧Z)"
+            >
               <ArrowPathIcon className="w-4 h-4" />
             </button>
           </div>
@@ -84,13 +109,24 @@ const SlideControls: React.FC<SlideControlsProps> = ({
             </button>
           </div>
 
-          {/* Add Slide */}
-          <button 
-            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-            title="Add Slide"
-          >
-            <PlusIcon className="w-4 h-4" />
-          </button>
+          {/* Slide Operations */}
+          <div className="flex items-center space-x-2">
+            <button 
+              onClick={onAddSlide}
+              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              title="Add Slide (⌘+)"
+            >
+              <PlusIcon className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={onDeleteSlide}
+              disabled={totalSlides <= 1}
+              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Delete Slide (Delete)"
+            >
+              <TrashIcon className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Right Section - Mode Controls */}
@@ -117,8 +153,9 @@ const SlideControls: React.FC<SlideControlsProps> = ({
           </button>
 
           <button 
+            onClick={onPresent}
             className="px-3 py-1.5 bg-blue-600 text-white rounded-lg flex items-center space-x-2 text-sm hover:bg-blue-700"
-            title="Start Presentation (⌘F5)"
+            title="Start Presentation (F5)"
           >
             <PresentationChartBarIcon className="w-4 h-4" />
             <span>Present</span>
@@ -126,7 +163,7 @@ const SlideControls: React.FC<SlideControlsProps> = ({
 
           <button 
             className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-            title="Download"
+            title="Download (⌘S)"
           >
             <ArrowDownTrayIcon className="w-4 h-4" />
           </button>
