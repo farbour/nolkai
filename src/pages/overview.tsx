@@ -166,19 +166,23 @@ const OverviewPage: React.FC = () => {
           };
         }
 
-        const value = parseFloat(row['This Period Value'] || '0');
+        let value = row['This Period Value'] || '0';
+        // Remove any commas from numbers
+        value = value.replace(/,/g, '');
+        const numericValue = parseFloat(value);
+
         switch (row['KPI Name']) {
           case 'Gross Revenue':
-            brandMetrics[row.Brand].revenue = value;
+            brandMetrics[row.Brand].revenue = numericValue;
             break;
           case 'Gross Margin':
-            brandMetrics[row.Brand].margin = value;
+            brandMetrics[row.Brand].margin = numericValue;
             break;
           case 'D2C Orders':
-            brandMetrics[row.Brand].orders = value;
+            brandMetrics[row.Brand].orders = numericValue;
             break;
           case 'Conversion Rate':
-            brandMetrics[row.Brand].conversion = value;
+            brandMetrics[row.Brand].conversion = numericValue;
             break;
         }
       }
@@ -203,7 +207,7 @@ const OverviewPage: React.FC = () => {
     }
   };
 
-  const brandMetrics = useMemo(() => calculateBrandMetrics(data), [data, selectedMonth]);
+  const brandMetrics = useMemo(() => calculateBrandMetrics(data), [data, selectedMonth.month, selectedMonth.year]);
 
   if (loading) {
     return (

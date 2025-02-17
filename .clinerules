@@ -1,0 +1,4 @@
+dont ever read these files:
+data.csv
+public/data.csv
+*.csv

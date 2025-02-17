@@ -1,5 +1,6 @@
 // file path: tailwind.config.ts
 import type { Config } from 'tailwindcss';
+import typography from '@tailwindcss/typography';
 
 const config: Config = {
   content: [
@@ -11,43 +12,23 @@ const config: Config = {
     extend: {
       colors: {
         'nolk-green': '#344C45',
-        'nolk-light': '#f8fafc',
       },
-      animation: {
-        'spin-slow': 'spin 3s linear infinite',
-      },
-      height: {
-        'chart': '400px',
-      },
-      ringColor: {
-        'nolk-green': '#344C45',
-      },
-      borderColor: {
-        'nolk-green': '#344C45',
-      },
-      textColor: {
-        'nolk-green': '#344C45',
-      },
-      backgroundColor: {
-        'nolk-green': '#344C45',
+      typography: {
+        DEFAULT: {
+          css: {
+            color: '#374151',
+            a: {
+              color: '#344C45',
+              '&:hover': {
+                color: '#2C403A',
+              },
+            },
+          },
+        },
       },
     },
   },
-  plugins: [],
-  safelist: [
-    'bg-green-50',
-    'bg-red-50',
-    'bg-yellow-50',
-    'text-green-600',
-    'text-red-600',
-    'text-yellow-800',
-    'border-green-200',
-    'border-red-200',
-    'border-yellow-200',
-    'hover:bg-green-200',
-    'hover:bg-red-200',
-    'hover:bg-yellow-200',
-  ]
+  plugins: [typography],
 };
 
 export default config;
