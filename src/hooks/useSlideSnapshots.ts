@@ -1,51 +1,14 @@
 // file path: src/hooks/useSlideSnapshots.ts
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import html2canvas from 'html2canvas';
+
 interface SnapshotWorkerMessage {
   success: boolean;
   snapshot?: string;
   error?: string;
   slideId: string;
 }
-
-const workerCode = `
-  self.onmessage = async (event) => {
-    const { slideId, slideElement, scale = 0.25 } = event.data;
-
-    try {
-      // Create a temporary container for the HTML string
-      const container = document.createElement('div');
-      container.innerHTML = slideElement;
-      document.body.appendChild(container);
-
-      // Import html2canvas dynamically
-      const html2canvas = (await import('html2canvas')).default;
-      
-      const canvas = await html2canvas(container.firstElementChild, {
-        scale,
-        backgroundColor: 'white',
-        logging: false,
-        useCORS: true,
-      });
-
-      // Clean up
-      document.body.removeChild(container);
-
-      const snapshot = canvas.toDataURL('image/png');
-      self.postMessage({ 
-        success: true, 
-        snapshot,
-        slideId
-      });
-    } catch (error) {
-      self.postMessage({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error',
-        slideId
-      });
-    }
-  };
-`;
 
 export function useSlideSnapshots() {
   const [snapshots, setSnapshots] = useState<Record<string, string>>({});
@@ -56,9 +19,7 @@ export function useSlideSnapshots() {
 
   // Initialize worker
   useEffect(() => {
-    const blob = new Blob([workerCode], { type: 'application/javascript' });
-    const workerUrl = URL.createObjectURL(blob);
-    workerRef.current = new Worker(workerUrl);
+    workerRef.current = new Worker('/snapshotWorker.js');
 
     workerRef.current.onmessage = (event: MessageEvent<SnapshotWorkerMessage>) => {
       const { success, snapshot, error, slideId } = event.data;
@@ -85,7 +46,6 @@ export function useSlideSnapshots() {
 
     return () => {
       workerRef.current?.terminate();
-      URL.revokeObjectURL(workerUrl);
     };
   }, []);
 
@@ -103,18 +63,28 @@ export function useSlideSnapshots() {
       return;
     }
 
-    pendingSnapshotsRef.current.set(slideId, true);
-    setIsGenerating(true);
+    try {
+      pendingSnapshotsRef.current.set(slideId, true);
+      setIsGenerating(true);
 
-    // Clone the element to send to worker
-    const elementClone = element.cloneNode(true) as HTMLElement;
-    const elementHTML = elementClone.outerHTML;
+      // Capture the initial image in the main thread
+      const canvas = await html2canvas(element, {
+        backgroundColor: 'white',
+        logging: false,
+        useCORS: true,
+      });
 
-    workerRef.current.postMessage({
-      slideId,
-      slideElement: elementHTML,
-      scale: 0.25
-    });
+      // Send the image data to the worker for processing
+      const imageData = canvas.toDataURL('image/png');
+      workerRef.current.postMessage({
+        slideId,
+        imageData
+      });
+    } catch (error) {
+      console.error('Error capturing initial snapshot:', error);
+      pendingSnapshotsRef.current.delete(slideId);
+      setIsGenerating(false);
+    }
   }, []);
 
   const clearSnapshot = useCallback((slideId: string) => {
