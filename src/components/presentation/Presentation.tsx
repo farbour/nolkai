@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Slide from './Slide';
 import { SlideContent } from './Slide';
 import SlideControls from './SlideControls';
+import SlideThumbnail from './SlideThumbnail';
 
 interface PresentationProps {
   slides: SlideContent[];
@@ -114,29 +115,19 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides }) =>
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Navigation
       if (e.key === 'ArrowRight' || e.key === 'PageDown') {
         handleNext();
       } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
         handlePrev();
-      }
-
-      // Mode controls
-      if (e.key === 'Escape') {
+      } else if (e.key === 'Escape') {
         if (isPresentationMode) {
           togglePresentationMode();
         }
         setIsEditMode(false);
-      }
-
-      // Presentation mode
-      if (e.key === 'F5' || (e.key === 'p' && (e.metaKey || e.ctrlKey))) {
+      } else if (e.key === 'F5' || (e.key === 'p' && (e.metaKey || e.ctrlKey))) {
         e.preventDefault();
         togglePresentationMode();
-      }
-
-      // Edit operations
-      if (e.metaKey || e.ctrlKey) {
+      } else if (e.metaKey || e.ctrlKey) {
         if (e.key === 'z') {
           e.preventDefault();
           if (e.shiftKey) {
@@ -144,15 +135,9 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides }) =>
           } else {
             handleUndo();
           }
-        } else if (e.key === 's') {
-          e.preventDefault();
-          // Save functionality would go here
         }
-      }
-
-      // Delete slide
-      if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (isEditMode && document.activeElement === document.body) {
+      } else if ((e.key === 'Delete' || e.key === 'Backspace') && isEditMode) {
+        if (document.activeElement === document.body) {
           e.preventDefault();
           handleDeleteSlide();
         }
@@ -173,7 +158,7 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides }) =>
   ]);
 
   return (
-    <div className={`fixed inset-0 bg-gray-100 ${isPresentationMode ? 'bg-black' : ''}`}>
+    <div className={`fixed inset-0 ${isPresentationMode ? 'bg-black' : 'bg-gray-100'}`}>
       {/* Top Controls - Hidden in presentation mode */}
       {!isPresentationMode && (
         <SlideControls
@@ -196,38 +181,19 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides }) =>
       <div className={`flex ${isPresentationMode ? 'h-screen' : 'h-[calc(100vh-64px)]'}`}>
         {/* Left Sidebar - Hidden in presentation mode */}
         {!isPresentationMode && (
-          <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto py-4">
-            <div className="space-y-3 px-2">
+          <div className="w-80 bg-[#F8F9FA] border-r border-gray-200 overflow-y-auto py-4">
+            <div className="space-y-4 px-4">
               {slides.map((slide, index) => (
-                <button
+                <SlideThumbnail
                   key={slide.id}
+                  slide={{
+                    ...slide,
+                    totalSlides: slides.length
+                  }}
+                  index={index}
+                  isActive={currentSlide === index}
                   onClick={() => handleSlideSelect(index)}
-                  className={`w-full group relative ${
-                    currentSlide === index 
-                      ? 'ring-2 ring-blue-500' 
-                      : 'hover:ring-2 hover:ring-gray-300'
-                  }`}
-                >
-                  {/* Thumbnail Container with 16:9 aspect ratio */}
-                  <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-                    <div className="absolute inset-0 bg-white border border-gray-200 rounded-lg overflow-hidden">
-                      {/* Thumbnail Preview */}
-                      <div className="w-full h-full p-2 flex flex-col">
-                        <div className="text-xs font-medium text-gray-700 truncate mb-1">
-                          {slide.title}
-                        </div>
-                        <div className="flex-1 flex items-center justify-center text-xs text-gray-400">
-                          Slide {index + 1}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Slide Number Badge */}
-                  <div className="absolute top-1 left-1 bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded">
-                    {index + 1}
-                  </div>
-                </button>
+                />
               ))}
             </div>
           </div>
@@ -236,7 +202,7 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides }) =>
         {/* Main Content Area */}
         <div className="flex-1 relative overflow-hidden">
           <div className={`absolute inset-0 flex items-center justify-center ${
-            isPresentationMode ? 'bg-black' : 'p-8 bg-[#F8F9FA]'
+            isPresentationMode ? 'bg-black' : 'bg-[#F8F9FA]'
           }`}>
             {slides.map((slide, index) => (
               <Slide
@@ -264,7 +230,6 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides }) =>
           <div>⌘Z: Undo</div>
           <div>⌘⇧Z: Redo</div>
           <div>Delete: Remove slide</div>
-          <div>⌘S: Save</div>
         </div>
       )}
     </div>
