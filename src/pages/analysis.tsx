@@ -1,4 +1,5 @@
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { createTypedRow, parseCSV, parseNumericValue } from "../utils/csvParser";
 // file path: src/pages/analysis.tsx
 import { useEffect, useMemo, useState } from "react";
 
@@ -32,29 +33,6 @@ interface TrendPoint {
 }
 
 // ---------- Utility Functions for Analysis ----------
-
-// Parse CSV line handling quoted values
-function parseCSVLine(line: string): string[] {
-  const values: string[] = [];
-  let currentValue = '';
-  let inQuotes = false;
-  
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === ',' && !inQuotes) {
-      values.push(currentValue.trim());
-      currentValue = '';
-    } else {
-      currentValue += char;
-    }
-  }
-  values.push(currentValue.trim());
-  
-  return values.map(v => v.replace(/["']/g, '').trim());
-}
 
 // Compute the mean of an array of numbers
 function computeMean(data: number[]): number {
@@ -93,13 +71,6 @@ function computeMax(data: number[]): number {
   return Math.max(...data);
 }
 
-// Parse numeric values from CSV data
-function parseNumericValue(value: string): number {
-  if (!value) return 0;
-  // Remove commas and convert to number
-  return Number(value.replace(/,/g, ''));
-}
-
 export default function AnalysisPage() {
   const [data, setData] = useState<DataPoint[]>([]);
   const [selectedMetric, setSelectedMetric] = useState<string>("Gross Revenue");
@@ -125,24 +96,16 @@ export default function AnalysisPage() {
         if (!response.ok) throw new Error('Failed to fetch data');
         
         const text = await response.text();
-        const lines = text.trim().split('\n');
+        const { headers, rows } = parseCSV(text);
         
-        const parsedData: DataPoint[] = lines.slice(1).map(line => {
-          const values = parseCSVLine(line);
-          return {
-            Brand: values[0],
-            'KPI Name': values[1],
-            'KPI Unit': values[2],
-            'Month of Date': values[3],
-            'Year of Date': values[4],
-            'This Period Value': values[5]
-          };
-        }).filter(row => 
-          row.Brand && 
-          row['KPI Name'] && 
-          row['This Period Value'] && 
-          !isNaN(parseNumericValue(row['This Period Value']))
-        );
+        const parsedData: DataPoint[] = rows
+          .map(row => createTypedRow<DataPoint>(headers, row))
+          .filter(row => 
+            row.Brand && 
+            row['KPI Name'] && 
+            row['This Period Value'] && 
+            !isNaN(parseNumericValue(row['This Period Value']))
+          );
 
         setData(parsedData);
         setLoading(false);
