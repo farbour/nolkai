@@ -1,10 +1,11 @@
 // file path: src/components/presentation/Presentation.tsx
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import Slide from './Slide';
 import { SlideContent } from './Slide';
 import SlideControls from './SlideControls';
 import SlideThumbnail from './SlideThumbnail';
+import { captureSlideSnapshot } from '../../utils/slideSnapshot';
 
 interface PresentationProps {
   slides: SlideContent[];
@@ -17,6 +18,40 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides }) =>
   const [isPresentationMode, setIsPresentationMode] = useState(false);
   const [undoStack, setUndoStack] = useState<SlideContent[][]>([]);
   const [redoStack, setRedoStack] = useState<SlideContent[][]>([]);
+  const [snapshots, setSnapshots] = useState<Record<string, string>>({});
+  
+  // Refs for slide elements
+  const slideRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  // Update snapshots when slides change
+  useEffect(() => {
+    const updateSnapshots = async () => {
+      const newSnapshots: Record<string, string> = {};
+      
+      for (const slide of slides) {
+        const slideElement = slideRefs.current[slide.id];
+        if (slideElement) {
+          try {
+            const snapshot = await captureSlideSnapshot(slideElement);
+            if (snapshot) {
+              newSnapshots[slide.id] = snapshot;
+            }
+          } catch (error) {
+            console.error('Error capturing snapshot for slide:', slide.id, error);
+          }
+        }
+      }
+
+      setSnapshots(prev => ({
+        ...prev,
+        ...newSnapshots
+      }));
+    };
+
+    // Small delay to ensure slides are rendered
+    const timeoutId = setTimeout(updateSnapshots, 100);
+    return () => clearTimeout(timeoutId);
+  }, [slides, currentSlide]);
 
   // Navigation handlers
   const handleNext = useCallback(() => {
@@ -157,6 +192,10 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides }) =>
     togglePresentationMode
   ]);
 
+  const setSlideRef = useCallback((id: string, element: HTMLDivElement | null) => {
+    slideRefs.current[id] = element;
+  }, []);
+
   return (
     <div className={`fixed inset-0 ${isPresentationMode ? 'bg-black' : 'bg-gray-100'}`}>
       {/* Top Controls - Hidden in presentation mode */}
@@ -186,13 +225,11 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides }) =>
               {slides.map((slide, index) => (
                 <SlideThumbnail
                   key={slide.id}
-                  slide={{
-                    ...slide,
-                    totalSlides: slides.length
-                  }}
+                  slide={slide}
                   index={index}
                   isActive={currentSlide === index}
                   onClick={() => handleSlideSelect(index)}
+                  snapshot={snapshots[slide.id]}
                 />
               ))}
             </div>
@@ -205,16 +242,21 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides }) =>
             isPresentationMode ? 'bg-black' : 'bg-[#F8F9FA]'
           }`}>
             {slides.map((slide, index) => (
-              <Slide
+              <div
                 key={slide.id}
-                content={{
-                  ...slide,
-                  slideNumber: index + 1,
-                  totalSlides: slides.length
-                }}
-                isActive={currentSlide === index}
-                isPresentationMode={isPresentationMode}
-              />
+                ref={(el) => setSlideRef(slide.id, el)}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <Slide
+                  content={{
+                    ...slide,
+                    slideNumber: index + 1,
+                    totalSlides: slides.length
+                  }}
+                  isActive={currentSlide === index}
+                  isPresentationMode={isPresentationMode}
+                />
+              </div>
             ))}
           </div>
         </div>

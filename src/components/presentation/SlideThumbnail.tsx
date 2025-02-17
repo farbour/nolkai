@@ -1,21 +1,13 @@
-import Logo from '../Logo';
 // file path: src/components/presentation/SlideThumbnail.tsx
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
 import { SlideContent } from './Slide';
-import remarkGfm from 'remark-gfm';
 
 interface SlideThumbnailProps {
   slide: SlideContent;
   index: number;
   isActive: boolean;
   onClick: () => void;
-}
-
-interface CodeBlockProps {
-  inline?: boolean;
-  className?: string;
-  children?: React.ReactNode;
+  snapshot?: string;
 }
 
 const SlideThumbnail: React.FC<SlideThumbnailProps> = ({
@@ -23,58 +15,8 @@ const SlideThumbnail: React.FC<SlideThumbnailProps> = ({
   index,
   isActive,
   onClick,
+  snapshot,
 }) => {
-  const renderContent = () => {
-    if (typeof slide.content === 'string') {
-      return (
-        <ReactMarkdown 
-          remarkPlugins={[remarkGfm]}
-          components={{
-            h1: ({ children }) => (
-              <h1 className="text-[12px] font-bold mb-2 text-center text-gray-800">{children}</h1>
-            ),
-            h2: ({ children }) => (
-              <h2 className="text-[11px] font-semibold mb-1.5 text-center text-gray-800">{children}</h2>
-            ),
-            h3: ({ children }) => (
-              <h3 className="text-[10px] font-medium mb-1 text-gray-800">{children}</h3>
-            ),
-            p: ({ children }) => (
-              <p className="text-[9px] mb-2 leading-snug text-gray-600">{children}</p>
-            ),
-            ul: ({ children }) => (
-              <ul className="list-disc pl-3 mb-2 space-y-1">{children}</ul>
-            ),
-            ol: ({ children }) => (
-              <ol className="list-decimal pl-3 mb-2 space-y-1">{children}</ol>
-            ),
-            li: ({ children }) => (
-              <li className="text-[9px] leading-snug text-gray-600">{children}</li>
-            ),
-            code: ({ inline, className, children }: CodeBlockProps) => (
-              <code
-                className={`${className} ${
-                  inline 
-                    ? 'bg-gray-100 rounded px-1 text-[9px] font-mono text-gray-800' 
-                    : 'block bg-gray-900 text-gray-100 p-1.5 rounded text-[9px] font-mono my-1.5'
-                }`}
-              >
-                {children}
-              </code>
-            ),
-          }}
-        >
-          {slide.content}
-        </ReactMarkdown>
-      );
-    }
-    return (
-      <div className="text-[9px] text-gray-400 flex items-center justify-center h-full">
-        Custom Content
-      </div>
-    );
-  };
-
   return (
     <button
       onClick={onClick}
@@ -84,31 +26,28 @@ const SlideThumbnail: React.FC<SlideThumbnailProps> = ({
           : 'hover:ring-2 hover:ring-gray-300 hover:shadow-md scale-95 hover:scale-100'
       }`}
     >
-      {/* Exact miniature of the main slide */}
+      {/* Thumbnail Container with 16:9 aspect ratio */}
       <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
         <div className="absolute inset-0 bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="relative w-full h-full flex flex-col">
-            {/* Header */}
-            <div className="h-6 px-3 flex items-center justify-between border-b border-gray-200 bg-white">
-              <h2 className="text-[9px] font-medium text-gray-800 truncate max-w-[80%]">
-                {slide.title}
-              </h2>
-              <Logo height={10} className="opacity-40" />
+          {snapshot ? (
+            // Display snapshot if available
+            <img 
+              src={snapshot} 
+              alt={`Slide ${index + 1}`}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            // Fallback loading state
+            <div className="w-full h-full flex items-center justify-center bg-gray-50">
+              <div className="text-[10px] text-gray-400">Loading preview...</div>
             </div>
-
-            {/* Content Area */}
-            <div className="flex-1 p-3 overflow-hidden">
-              <div className="h-full flex flex-col justify-center">
-                {renderContent()}
-              </div>
-            </div>
-
-            {/* Slide Number */}
-            <div className="absolute bottom-1 right-1.5 text-[8px] text-gray-400">
-              {index + 1} / {slide.totalSlides}
-            </div>
-          </div>
+          )}
         </div>
+      </div>
+      
+      {/* Slide Number Badge */}
+      <div className="absolute top-2 left-2 bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-medium shadow-sm">
+        {index + 1}
       </div>
     </button>
   );
