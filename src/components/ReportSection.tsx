@@ -97,8 +97,8 @@ interface ReportSectionProps {
 
 export const ReportSection: React.FC<ReportSectionProps> = ({ title, children }) => {
   return (
-    <div className="bg-white rounded-xl shadow-lg p-8 mb-12 border border-gray-200">
-      <h2 className="text-3xl font-bold text-nolk-green mb-8">{title}</h2>
+    <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-200">
+      <h2 className="text-3xl font-bold text-nolk-green mb-6">{title}</h2>
       {children}
     </div>
   );

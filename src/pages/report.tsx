@@ -3,6 +3,8 @@ import { ProcessedData, processReportData } from '@/utils/reportDataProcessor';
 import React, { useEffect, useState } from 'react';
 import ReportSection, { DataTable, MetricCard } from '@/components/ReportSection';
 
+import { Layout } from '@/components/Layout';
+
 const Report = () => {
   const [reportData, setReportData] = useState<ProcessedData | null>(null);
 
@@ -23,9 +25,11 @@ const Report = () => {
 
   if (!reportData) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-nolk-green"></div>
-      </div>
+      <Layout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-nolk-green"></div>
+        </div>
+      </Layout>
     );
   }
 
@@ -61,67 +65,57 @@ const Report = () => {
   const executiveSummaryPoints = getExecutiveSummaryPoints();
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="bg-white rounded-xl shadow-lg p-8 mb-12 border border-gray-200">
-        <h1 className="text-4xl font-bold text-nolk-green mb-4">
-          Nolk Weekly Executive Report
-        </h1>
-        <div className="text-gray-600 mb-2">Date: February 17, 2025</div>
-        <div className="text-gray-600">Prepared by: Executive Team</div>
-      </div>
-
-      <ReportSection title="1. Executive Summary">
-        <div className="space-y-4">
-          {executiveSummaryPoints.map((point, index) => (
-            <div key={index} className="flex items-start space-x-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-nolk-green text-white flex items-center justify-center font-semibold">
-                {index + 1}
+    <Layout>
+      <div className="space-y-6">
+        <ReportSection title="1. Executive Summary">
+          <div className="space-y-4">
+            {executiveSummaryPoints.map((point, index) => (
+              <div key={index} className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-nolk-green text-white flex items-center justify-center font-semibold">
+                  {index + 1}
+                </div>
+                <p className="text-gray-700 text-lg mt-1">{point}</p>
               </div>
-              <p className="text-gray-700 text-lg mt-1">{point}</p>
-            </div>
-          ))}
-        </div>
-      </ReportSection>
+            ))}
+          </div>
+        </ReportSection>
 
-      <ReportSection title="2. Key Performance Indicators (KPIs)">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <MetricCard
-            title="Total Revenue"
-            value={reportData.metrics.revenue.value}
-            change={reportData.metrics.revenue.change}
+        <ReportSection title="2. Key Performance Indicators (KPIs)">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <MetricCard
+              title="Total Revenue"
+              value={reportData.metrics.revenue.value}
+              change={reportData.metrics.revenue.change}
+            />
+            <MetricCard
+              title="Gross Profit"
+              value={reportData.metrics.grossProfit.value}
+              change={reportData.metrics.grossProfit.change}
+            />
+            <MetricCard
+              title="Net Profit"
+              value={reportData.metrics.netProfit.value}
+              change={reportData.metrics.netProfit.change}
+            />
+          </div>
+          <DataTable headers={reportData.kpiData.headers} data={reportData.kpiData.data} />
+        </ReportSection>
+
+        <ReportSection title="3. Supply Chain Performance">
+          <DataTable
+            headers={reportData.supplyData.headers}
+            data={reportData.supplyData.data}
           />
-          <MetricCard
-            title="Gross Profit"
-            value={reportData.metrics.grossProfit.value}
-            change={reportData.metrics.grossProfit.change}
+        </ReportSection>
+
+        <ReportSection title="4. Customer Satisfaction Metrics">
+          <DataTable
+            headers={reportData.satisfactionData.headers}
+            data={reportData.satisfactionData.data}
           />
-          <MetricCard
-            title="Net Profit"
-            value={reportData.metrics.netProfit.value}
-            change={reportData.metrics.netProfit.change}
-          />
-        </div>
-        <DataTable headers={reportData.kpiData.headers} data={reportData.kpiData.data} />
-      </ReportSection>
-
-      <ReportSection title="3. Supply Chain Performance">
-        <DataTable
-          headers={reportData.supplyData.headers}
-          data={reportData.supplyData.data}
-        />
-      </ReportSection>
-
-      <ReportSection title="4. Customer Satisfaction Metrics">
-        <DataTable
-          headers={reportData.satisfactionData.headers}
-          data={reportData.satisfactionData.data}
-        />
-      </ReportSection>
-
-      <div className="text-right text-sm text-gray-500 mt-8">
-        Last updated: {new Date().toLocaleDateString()}
+        </ReportSection>
       </div>
-    </div>
+    </Layout>
   );
 };
 
