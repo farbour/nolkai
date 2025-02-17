@@ -3,6 +3,7 @@ import { ProcessedData, processReportData } from '@/utils/reportDataProcessor';
 import React, { useEffect, useState } from 'react';
 import ReportSection, { MetricCard } from '@/components/ReportSection';
 
+import Image from 'next/image';
 import Presentation from '@/components/presentation/Presentation';
 import { SlideContent } from '@/components/presentation/Slide';
 import { SortableTable } from '@/components/SortableTable';
@@ -64,8 +65,64 @@ const Report = () => {
   };
 
   const executiveSummaryPoints = getExecutiveSummaryPoints();
+  const currentDate = new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+  });
 
   const slides: SlideContent[] = [
+    {
+      id: 'intro',
+      title: '',
+      content: (
+        <div className="flex flex-col items-center justify-center h-full space-y-8 py-12">
+          <div className="w-48 h-48 relative mb-8">
+            <Image
+              src="/nolk-logo.svg"
+              alt="Nolk Logo"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+          <h1 className="text-4xl font-bold text-gray-800 text-center">
+            Monthly Performance Report
+          </h1>
+          <p className="text-xl text-gray-600">{currentDate}</p>
+          <div className="mt-12 text-gray-500 text-center">
+            <p>Prepared by Nolk Analytics Team</p>
+            <p className="mt-2">Confidential - Internal Use Only</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'agenda',
+      title: 'Agenda',
+      content: (
+        <div className="space-y-6 py-8">
+          <p className="text-gray-600 mb-8">
+            In this presentation, we will cover the following key areas:
+          </p>
+          <div className="space-y-4">
+            {[
+              'Executive Summary - Key Highlights and Insights',
+              'Key Performance Indicators (KPIs) - Financial Metrics',
+              'Supply Chain Performance - Operational Efficiency',
+              'Customer Satisfaction Metrics - Service Quality',
+              'Conclusions and Next Steps',
+            ].map((item, index) => (
+              <div key={index} className="flex items-center space-x-4">
+                <div className="w-8 h-8 rounded-full bg-nolk-green text-white flex items-center justify-center font-semibold">
+                  {index + 1}
+                </div>
+                <p className="text-lg text-gray-700">{item}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ),
+    },
     {
       id: 'executive-summary',
       title: '1. Executive Summary',
@@ -112,20 +169,99 @@ const Report = () => {
       id: 'supply-chain',
       title: '3. Supply Chain Performance',
       content: (
-        <SortableTable
-          headers={reportData.supplyData.headers}
-          data={reportData.supplyData.data}
-        />
+        <div className="space-y-4">
+          <p className="text-gray-600 mb-6">
+            Analysis of our supply chain efficiency and operational metrics:
+          </p>
+          <SortableTable
+            headers={reportData.supplyData.headers}
+            data={reportData.supplyData.data}
+          />
+        </div>
       ),
     },
     {
       id: 'customer-satisfaction',
       title: '4. Customer Satisfaction Metrics',
       content: (
-        <SortableTable
-          headers={reportData.satisfactionData.headers}
-          data={reportData.satisfactionData.data}
-        />
+        <div className="space-y-4">
+          <p className="text-gray-600 mb-6">
+            Overview of customer satisfaction and service quality indicators:
+          </p>
+          <SortableTable
+            headers={reportData.satisfactionData.headers}
+            data={reportData.satisfactionData.data}
+          />
+        </div>
+      ),
+    },
+    {
+      id: 'conclusions',
+      title: 'Conclusions & Next Steps',
+      content: (
+        <div className="space-y-8 py-6">
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-gray-800">Key Takeaways</h3>
+            <ul className="space-y-4">
+              <li className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-nolk-green text-white flex items-center justify-center text-sm">✓</div>
+                <p className="text-gray-700">Revenue trends indicate need for focused growth initiatives</p>
+              </li>
+              <li className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-nolk-green text-white flex items-center justify-center text-sm">✓</div>
+                <p className="text-gray-700">Supply chain efficiency shows room for optimization</p>
+              </li>
+              <li className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-nolk-green text-white flex items-center justify-center text-sm">✓</div>
+                <p className="text-gray-700">Customer satisfaction metrics remain strong with opportunities for improvement</p>
+              </li>
+            </ul>
+          </div>
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-gray-800">Recommended Actions</h3>
+            <ul className="space-y-4">
+              <li className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-nolk-green text-white flex items-center justify-center text-sm">1</div>
+                <p className="text-gray-700">Implement targeted marketing campaigns to drive revenue growth</p>
+              </li>
+              <li className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-nolk-green text-white flex items-center justify-center text-sm">2</div>
+                <p className="text-gray-700">Optimize supply chain processes to reduce operational costs</p>
+              </li>
+              <li className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-nolk-green text-white flex items-center justify-center text-sm">3</div>
+                <p className="text-gray-700">Enhance customer service training and support systems</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'outro',
+      title: '',
+      content: (
+        <div className="flex flex-col items-center justify-center h-full space-y-8 py-12">
+          <h2 className="text-3xl font-bold text-gray-800 text-center">
+            Thank You
+          </h2>
+          <p className="text-xl text-gray-600 text-center max-w-2xl">
+            For questions or detailed analysis, please contact the Nolk Analytics Team
+          </p>
+          <div className="w-32 h-32 relative mt-8">
+            <Image
+              src="/nolk-logo.svg"
+              alt="Nolk Logo"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+          <div className="mt-8 text-gray-500 text-center">
+            <p>© {new Date().getFullYear()} Nolk</p>
+            <p className="mt-2">All Rights Reserved</p>
+          </div>
+        </div>
       ),
     },
   ];
@@ -145,7 +281,7 @@ const Report = () => {
         <Presentation slides={slides} />
       ) : (
         <div className="space-y-6">
-          {slides.map((slide) => (
+          {slides.slice(2, -2).map((slide) => (
             <ReportSection key={slide.id} title={slide.title}>
               {slide.content}
             </ReportSection>
