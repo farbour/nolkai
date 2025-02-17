@@ -19,34 +19,36 @@ export function useSlideSnapshots() {
 
   // Initialize worker
   useEffect(() => {
-    workerRef.current = new Worker('/snapshotWorker.js');
+    if (typeof window !== 'undefined') {
+      workerRef.current = new Worker('/snapshotWorker.js');
 
-    workerRef.current.onmessage = (event: MessageEvent<SnapshotWorkerMessage>) => {
-      const { success, snapshot, error, slideId } = event.data;
-      
-      if (success && snapshot && slideId) {
-        setSnapshots(prev => ({
-          ...prev,
-          [slideId]: snapshot
-        }));
-        snapshotCacheRef.current[slideId] = snapshot;
-        pendingSnapshotsRef.current.delete(slideId);
-      } else if (error) {
-        console.error('Snapshot generation error:', error);
-        if (slideId) {
+      workerRef.current.onmessage = (event: MessageEvent<SnapshotWorkerMessage>) => {
+        const { success, snapshot, error, slideId } = event.data;
+        
+        if (success && snapshot && slideId) {
+          setSnapshots(prev => ({
+            ...prev,
+            [slideId]: snapshot
+          }));
+          snapshotCacheRef.current[slideId] = snapshot;
           pendingSnapshotsRef.current.delete(slideId);
+        } else if (error) {
+          console.error('Snapshot generation error:', error);
+          if (slideId) {
+            pendingSnapshotsRef.current.delete(slideId);
+          }
         }
-      }
 
-      // Check if all pending snapshots are complete
-      if (pendingSnapshotsRef.current.size === 0) {
-        setIsGenerating(false);
-      }
-    };
+        // Check if all pending snapshots are complete
+        if (pendingSnapshotsRef.current.size === 0) {
+          setIsGenerating(false);
+        }
+      };
 
-    return () => {
-      workerRef.current?.terminate();
-    };
+      return () => {
+        workerRef.current?.terminate();
+      };
+    }
   }, []);
 
   const generateSnapshot = useCallback(async (slideId: string, element: HTMLElement) => {
@@ -54,7 +56,7 @@ export function useSlideSnapshots() {
       return;
     }
 
-    // Use cached snapshot if available and element hasn't changed
+    // Use cached snapshot if available
     if (snapshotCacheRef.current[slideId]) {
       setSnapshots(prev => ({
         ...prev,
@@ -72,13 +74,17 @@ export function useSlideSnapshots() {
         backgroundColor: 'white',
         logging: false,
         useCORS: true,
+        scale: 1, // Capture at full resolution
       });
 
-      // Send the image data to the worker for processing
+      // Get the image data
       const imageData = canvas.toDataURL('image/png');
+
+      // Send to worker for scaling
       workerRef.current.postMessage({
         slideId,
-        imageData
+        imageData,
+        scale: 0.25
       });
     } catch (error) {
       console.error('Error capturing initial snapshot:', error);

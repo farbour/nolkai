@@ -1,49 +1,39 @@
 // file path: public/snapshotWorker.js
-importScripts('https://html2canvas.hertzen.com/dist/html2canvas.min.js');
-
 self.onmessage = async (event) => {
-  const { slideId, imageData } = event.data;
+  const { slideId, imageData, scale = 0.25 } = event.data;
 
   try {
-    // Create a canvas from the image data
-    const img = new Image();
-    img.src = imageData;
-    
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-    });
+    // Create a bitmap from the image data
+    const response = await fetch(imageData);
+    const blob = await response.blob();
+    const bitmap = await createImageBitmap(blob);
 
-    const canvas = new OffscreenCanvas(img.width, img.height);
+    // Create scaled canvas
+    const scaledWidth = bitmap.width * scale;
+    const scaledHeight = bitmap.height * scale;
+    const canvas = new OffscreenCanvas(scaledWidth, scaledHeight);
     const ctx = canvas.getContext('2d');
-    
+
     if (!ctx) {
       throw new Error('Could not get canvas context');
     }
 
-    // Scale down the image
-    const scale = 0.25;
-    const scaledWidth = img.width * scale;
-    const scaledHeight = img.height * scale;
+    // Draw scaled image
+    ctx.drawImage(bitmap, 0, 0, scaledWidth, scaledHeight);
     
-    const scaledCanvas = new OffscreenCanvas(scaledWidth, scaledHeight);
-    const scaledCtx = scaledCanvas.getContext('2d');
+    // Convert to blob
+    const resultBlob = await canvas.convertToBlob({ type: 'image/png' });
     
-    if (!scaledCtx) {
-      throw new Error('Could not get scaled canvas context');
-    }
-
-    scaledCtx.drawImage(img, 0, 0, scaledWidth, scaledHeight);
-    
-    // Convert to blob and then to base64
-    const blob = await scaledCanvas.convertToBlob({ type: 'image/png' });
+    // Convert blob to base64
     const reader = new FileReader();
-    
     const snapshot = await new Promise((resolve, reject) => {
       reader.onload = () => resolve(reader.result);
       reader.onerror = reject;
-      reader.readAsDataURL(blob);
+      reader.readAsDataURL(resultBlob);
     });
+
+    // Clean up
+    bitmap.close();
 
     self.postMessage({ 
       success: true, 
