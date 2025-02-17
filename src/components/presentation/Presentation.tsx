@@ -1,7 +1,8 @@
 // file path: src/components/presentation/Presentation.tsx
 import React, { useCallback, useEffect, useState } from 'react';
-import Slide, { SlideContent } from './Slide';
 
+import Slide from './Slide';
+import { SlideContent } from './Slide';
 import SlideControls from './SlideControls';
 
 interface PresentationProps {
@@ -65,7 +66,7 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides }) =>
     const newSlide: SlideContent = {
       id: `slide-${Date.now()}`,
       title: 'New Slide',
-      content: <div className="text-center text-gray-400">Add content here</div>
+      content: '# New Slide\n\nAdd your content here'
     };
     pushToUndoStack([...slides.slice(0, currentSlide + 1), newSlide, ...slides.slice(currentSlide + 1)]);
     setCurrentSlide(currentSlide + 1);
@@ -92,7 +93,6 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides }) =>
       }
     } catch (error) {
       console.error('Fullscreen error:', error);
-      // Fallback: just toggle the presentation mode state
       setIsPresentationMode(!isPresentationMode);
     }
   }, [isPresentationMode]);
