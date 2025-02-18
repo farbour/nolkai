@@ -5,18 +5,24 @@ import {
   brandPerformance,
   goals,
   kpis,
+  marketTrends,
   performanceMetrics,
-  quickActions
+  quickActions,
+  tasks,
+  upcomingEvents
 } from '@/data/dashboardData';
 
 import { AIInsights } from '@/components/dashboard/AIInsights';
 import { AlertItem } from '@/components/dashboard/AlertItem';
 import { BrandPerformance } from '@/components/dashboard/BrandPerformance';
+import { Calendar } from '@/components/dashboard/Calendar';
 import { GoalProgress } from '@/components/dashboard/GoalProgress';
 import { KPICard } from '@/components/dashboard/KPICard';
 import { Layout } from '@/components/Layout';
+import { MarketTrends } from '@/components/dashboard/MarketTrends';
 import { PerformanceChart } from '@/components/dashboard/PerformanceChart';
 import { QuickActions } from '@/components/dashboard/QuickActions';
+import { Tasks } from '@/components/dashboard/Tasks';
 
 // file path: src/pages/index.tsx
 
@@ -64,16 +70,21 @@ export default function Home() {
         {/* Brand Performance */}
         <BrandPerformance brands={brandPerformance} />
 
+        {/* Market Trends */}
+        <MarketTrends trends={marketTrends} />
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Goals & Quick Actions */}
+          {/* Left Column */}
           <div className="lg:col-span-1 space-y-6">
             <GoalProgress goals={goals} />
             <QuickActions actions={quickActions} />
+            <Calendar events={upcomingEvents} />
           </div>
 
-          {/* AI Suggestions */}
-          <div className="lg:col-span-2">
+          {/* Right Column */}
+          <div className="lg:col-span-2 space-y-6">
             <AIInsights suggestions={aiSuggestions} />
+            <Tasks tasks={tasks} />
           </div>
         </div>
       </div>

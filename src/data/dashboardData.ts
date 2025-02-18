@@ -172,3 +172,84 @@ export const quickActions = [
     color: 'green' as ColorType
   }
 ];
+
+export const upcomingEvents = [
+  {
+    id: 1,
+    title: "Q2 Performance Review",
+    type: "Meeting",
+    date: "Tomorrow",
+    time: "10:00 AM"
+  },
+  {
+    id: 2,
+    title: "Brand F Onboarding Call",
+    type: "Call",
+    date: "Wed, Mar 20",
+    time: "2:00 PM"
+  },
+  {
+    id: 3,
+    title: "Marketing Strategy Workshop",
+    type: "Workshop",
+    date: "Thu, Mar 21",
+    time: "11:00 AM"
+  }
+];
+
+export const marketTrends = [
+  {
+    id: 1,
+    name: "E-commerce Growth",
+    description: "Overall market growth in the D2C sector",
+    change: "+8.5%",
+    trend: 'up' as const,
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
+      value: 5 + Math.random() * 8,
+      change: Math.random() * 2 - 1
+    }))
+  },
+  {
+    id: 2,
+    name: "Customer Acquisition Cost",
+    description: "Average cost per new customer",
+    change: "-3.2%",
+    trend: 'down' as const,
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
+      value: 15 - Math.random() * 5,
+      change: Math.random() * 2 - 1
+    }))
+  }
+];
+
+export const tasks = [
+  {
+    id: 1,
+    title: "Review Brand D Performance",
+    description: "Analyze recent performance drop and prepare action plan",
+    priority: "high" as const,
+    dueDate: "Today",
+    status: "in-progress" as const,
+    tags: ["analysis", "urgent"]
+  },
+  {
+    id: 2,
+    title: "Prepare Q2 Report",
+    description: "Compile performance data and create presentation",
+    priority: "medium" as const,
+    dueDate: "Next Week",
+    status: "todo" as const,
+    tags: ["report", "quarterly"]
+  },
+  {
+    id: 3,
+    title: "Update Marketing Budget",
+    description: "Reallocate Q2 marketing budget based on performance",
+    priority: "low" as const,
+    dueDate: "Mar 25",
+    status: "completed" as const,
+    tags: ["marketing", "budget"]
+  }
+];
