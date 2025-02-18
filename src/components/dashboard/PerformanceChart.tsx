@@ -1,5 +1,6 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
+import { AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
 import React from 'react';
 
 // file path: src/components/dashboard/PerformanceChart.tsx
@@ -10,11 +11,21 @@ interface PerformanceData {
   orders: number;
 }
 
+type TimeframeId = 'today' | 'week' | 'month' | 'quarter' | 'year';
+
 interface PerformanceChartProps {
   data: PerformanceData[];
-  timeframe: string;
-  onTimeframeChange: (timeframe: string) => void;
+  timeframe: TimeframeId;
+  onTimeframeChange: (timeframe: TimeframeId) => void;
 }
+
+const timeframes = [
+  { id: 'today' as const, name: 'Today' },
+  { id: 'week' as const, name: 'This Week' },
+  { id: 'month' as const, name: 'This Month' },
+  { id: 'quarter' as const, name: 'This Quarter' },
+  { id: 'year' as const, name: 'This Year' },
+];
 
 export const PerformanceChart: React.FC<PerformanceChartProps> = ({
   data,
@@ -26,16 +37,21 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">Performance Overview</h2>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-4">
             <select
               value={timeframe}
-              onChange={(e) => onTimeframeChange(e.target.value)}
-              className="text-sm border-0 bg-gray-50 rounded-lg px-3 py-1 focus:ring-2 focus:ring-nolk-green"
+              onChange={(e) => onTimeframeChange(e.target.value as TimeframeId)}
+              className="text-sm border rounded-lg border-gray-200 px-3 py-1 focus:ring-2 focus:ring-nolk-green"
             >
-              <option value="1m">Last Month</option>
-              <option value="3m">Last 3 Months</option>
-              <option value="1y">Last Year</option>
+              {timeframes.map((tf) => (
+                <option key={tf.id} value={tf.id}>
+                  {tf.name}
+                </option>
+              ))}
             </select>
+            <button className="p-2 text-gray-400 hover:text-gray-500">
+              <AdjustmentsHorizontalIcon className="h-5 w-5" />
+            </button>
           </div>
         </div>
       </div>

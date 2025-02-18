@@ -24,23 +24,21 @@ export const AlertItem: React.FC<AlertItemProps> = ({
   return (
     <div
       key={id}
-      className={`flex items-center p-4 rounded-lg border ${styles.bg} ${styles.border}`}
+      className="flex items-start py-2 group hover:bg-gray-50 transition-colors duration-150 px-1 rounded"
     >
-      <div className="flex-shrink-0">
-        <styles.icon className={`h-5 w-5 ${styles.text}`} />
+      <div className="flex-shrink-0 mt-1">
+        <styles.icon className={`h-4 w-4 ${styles.text} opacity-75`} />
       </div>
-      <div className="ml-3">
-        <h3 className={`text-sm font-medium ${styles.text}`}>
+      <div className="ml-3 min-w-0 flex-1">
+        <p className="text-sm font-medium text-gray-900">
           {title}
-        </h3>
-        <div className="mt-1 text-sm opacity-90">
+        </p>
+        <p className="text-sm text-gray-600 line-clamp-2">
           {description}
-        </div>
-      </div>
-      <div className="ml-auto pl-3">
-        <div className="text-sm text-gray-500">
+        </p>
+        <p className="mt-1 text-xs text-gray-500">
           {time}
-        </div>
+        </p>
       </div>
     </div>
   );

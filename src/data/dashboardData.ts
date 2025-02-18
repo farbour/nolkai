@@ -1,68 +1,48 @@
+import {
+  AIInsight,
+  Brand,
+  Event,
+  ForecastMetric,
+  Goal,
+  KPI,
+  MarketTrend,
+  QuickAction,
+  Task
+} from '@/types/dashboard';
+import { ChartBarIcon, DocumentIcon } from '@heroicons/react/24/outline';
+
+import { AlertType } from '@/types/theme';
+
 // file path: src/data/dashboardData.ts
 
-import { AlertType, ColorType } from '@/types/theme';
-import {
-  ArrowTrendingUpIcon,
-  BoltIcon,
-  ChartBarIcon,
-  DocumentIcon,
-  PresentationChartBarIcon,
-  SparklesIcon,
-  UserGroupIcon
-} from '@heroicons/react/24/outline';
-
-export const kpis = [
+export const kpis: KPI[] = [
   {
     title: "Total Revenue",
-    value: "$1.2M",
-    change: "+12.3%",
-    timeframe: "vs. last month",
-    icon: ChartBarIcon,
-    trend: 'up' as const,
-    color: 'green' as ColorType,
-    data: Array.from({ length: 12 }, (_, i) => ({
-      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
-      value: 800000 + Math.random() * 500000
-    }))
+    value: 1200000,
+    change: 12.3,
+    trend: 'up',
+    description: "vs. last month"
   },
   {
     title: "Active Brands",
-    value: "15",
-    change: "+2",
-    timeframe: "vs. last month",
-    icon: UserGroupIcon,
-    trend: 'up' as const,
-    color: 'blue' as ColorType,
-    data: Array.from({ length: 12 }, (_, i) => ({
-      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
-      value: 10 + Math.random() * 7
-    }))
+    value: 15,
+    change: 2,
+    trend: 'up',
+    description: "vs. last month"
   },
   {
     title: "Avg. Order Value",
-    value: "$85",
-    change: "+5.7%",
-    timeframe: "vs. last month",
-    icon: SparklesIcon,
-    trend: 'up' as const,
-    color: 'purple' as ColorType,
-    data: Array.from({ length: 12 }, (_, i) => ({
-      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
-      value: 70 + Math.random() * 20
-    }))
+    value: 85,
+    change: 5.7,
+    trend: 'up',
+    description: "vs. last month"
   },
   {
     title: "Customer Satisfaction",
-    value: "94%",
-    change: "+2.1%",
-    timeframe: "vs. last month",
-    icon: SparklesIcon,
-    trend: 'up' as const,
-    color: 'indigo' as ColorType,
-    data: Array.from({ length: 12 }, (_, i) => ({
-      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
-      value: 90 + Math.random() * 5
-    }))
+    value: 94,
+    change: 2.1,
+    trend: 'up',
+    description: "vs. last month"
   }
 ];
 
@@ -90,22 +70,54 @@ export const alerts = [
   }
 ];
 
-export const aiSuggestions = [
+export const tasks: Task[] = [
   {
-    id: 1,
-    title: "Revenue Opportunity",
-    description: "Based on current trends, increasing marketing spend in Q2 could boost revenue by 15%",
-    impact: "High" as const,
-    icon: ArrowTrendingUpIcon,
-    category: "revenue" as const
+    id: "1",
+    title: "Review Brand D Performance",
+    description: "Analyze recent performance drop and prepare action plan",
+    priority: "high",
+    dueDate: "2024-03-18"
   },
   {
-    id: 2,
+    id: "2",
+    title: "Prepare Q2 Report",
+    description: "Compile performance data and create presentation",
+    priority: "medium",
+    dueDate: "2024-03-25"
+  }
+];
+
+export const matrixTasks: Task[] = [
+  {
+    id: "3",
+    title: "Review Brand D Performance",
+    description: "Analyze recent performance drop",
+    priority: "high",
+    dueDate: "2024-03-18"
+  },
+  {
+    id: "4",
+    title: "Update Marketing Strategy",
+    description: "Plan Q2 marketing initiatives",
+    priority: "medium",
+    dueDate: "2024-03-25"
+  }
+];
+
+export const aiSuggestions: AIInsight[] = [
+  {
+    id: "1",
+    title: "Revenue Opportunity",
+    description: "Based on current trends, increasing marketing spend in Q2 could boost revenue by 15%",
+    impact: "high",
+    category: "revenue"
+  },
+  {
+    id: "2",
     title: "Performance Alert",
     description: "Conversion rates have dropped 5% in the last week",
-    impact: "Medium" as const,
-    icon: BoltIcon,
-    category: "performance" as const
+    impact: "medium",
+    category: "performance"
   }
 ];
 
@@ -114,142 +126,131 @@ export const performanceMetrics = [
   { month: 'Feb', revenue: 920000, orders: 14500 },
   { month: 'Mar', revenue: 880000, orders: 13200 },
   { month: 'Apr', revenue: 1100000, orders: 16800 },
-  { month: 'May', revenue: 1200000, orders: 18500 },
+  { month: 'May', revenue: 1200000, orders: 18500 }
 ];
 
-export const brandPerformance = [
-  { name: 'Brand A', revenue: 450000, growth: 15, satisfaction: 95 },
-  { name: 'Brand B', revenue: 380000, growth: 12, satisfaction: 92 },
-  { name: 'Brand C', revenue: 320000, growth: 18, satisfaction: 94 },
-  { name: 'Brand D', revenue: 290000, growth: 8, satisfaction: 91 },
-  { name: 'Brand E', revenue: 250000, growth: 22, satisfaction: 96 },
-];
-
-export const goals = [
+export const brandPerformance: Brand[] = [
   {
-    name: "Q2 Revenue Target",
-    target: "$2M",
-    current: "$1.2M",
-    progress: 60,
-    color: 'green' as ColorType
+    id: "1",
+    name: 'Brand A',
+    performance: 85,
+    trend: 'up',
+    metrics: [
+      { name: 'Revenue', value: 450000, change: 15 },
+      { name: 'Growth', value: 15, change: 2 },
+      { name: 'Satisfaction', value: 95, change: 3 }
+    ]
   },
   {
-    name: "Brand Expansion",
-    target: "20 Brands",
-    current: "15 Brands",
-    progress: 75,
-    color: 'blue' as ColorType
-  },
-  {
-    name: "Customer Satisfaction",
-    target: "95%",
-    current: "94%",
-    progress: 98,
-    color: 'indigo' as ColorType
+    id: "2",
+    name: 'Brand B',
+    performance: 82,
+    trend: 'up',
+    metrics: [
+      { name: 'Revenue', value: 380000, change: 12 },
+      { name: 'Growth', value: 12, change: 1 },
+      { name: 'Satisfaction', value: 92, change: 2 }
+    ]
   }
 ];
 
-export const quickActions = [
+export const goals: Goal[] = [
   {
-    name: "Create Report",
+    id: "1",
+    title: "Q2 Revenue Target",
+    progress: 60,
+    target: 2000000,
+    dueDate: "2024-06-30"
+  },
+  {
+    id: "2",
+    title: "Brand Expansion",
+    progress: 75,
+    target: 20,
+    dueDate: "2024-12-31"
+  }
+];
+
+export const quickActions: QuickAction[] = [
+  {
+    id: "1",
+    title: "Create Report",
     description: "Generate a new performance report",
     icon: DocumentIcon,
-    href: "/report",
-    color: 'blue' as ColorType
+    href: "/report"
   },
   {
-    name: "View Analytics",
+    id: "2",
+    title: "View Analytics",
     description: "Check detailed analytics",
     icon: ChartBarIcon,
-    href: "/overview",
-    color: 'purple' as ColorType
-  },
-  {
-    name: "New Presentation",
-    description: "Create a new presentation",
-    icon: PresentationChartBarIcon,
-    href: "/presentations",
-    color: 'green' as ColorType
+    href: "/overview"
   }
 ];
 
-export const upcomingEvents = [
+export const upcomingEvents: Event[] = [
   {
-    id: 1,
+    id: "1",
     title: "Q2 Performance Review",
-    type: "Meeting",
-    date: "Tomorrow",
-    time: "10:00 AM"
+    date: "2024-03-19",
+    type: "meeting"
   },
   {
-    id: 2,
+    id: "2",
     title: "Brand F Onboarding Call",
-    type: "Call",
-    date: "Wed, Mar 20",
-    time: "2:00 PM"
-  },
-  {
-    id: 3,
-    title: "Marketing Strategy Workshop",
-    type: "Workshop",
-    date: "Thu, Mar 21",
-    time: "11:00 AM"
+    date: "2024-03-20",
+    type: "meeting"
   }
 ];
 
-export const marketTrends = [
+export const marketTrends: MarketTrend[] = [
   {
-    id: 1,
+    id: "1",
     name: "E-commerce Growth",
-    description: "Overall market growth in the D2C sector",
-    change: "+8.5%",
-    trend: 'up' as const,
+    value: 8.5,
+    change: 2.1,
     data: Array.from({ length: 12 }, (_, i) => ({
       date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
-      value: 5 + Math.random() * 8,
-      change: Math.random() * 2 - 1
-    }))
-  },
-  {
-    id: 2,
-    name: "Customer Acquisition Cost",
-    description: "Average cost per new customer",
-    change: "-3.2%",
-    trend: 'down' as const,
-    data: Array.from({ length: 12 }, (_, i) => ({
-      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
-      value: 15 - Math.random() * 5,
-      change: Math.random() * 2 - 1
+      value: 5 + Math.random() * 8
     }))
   }
 ];
 
-export const tasks = [
-  {
-    id: 1,
-    title: "Review Brand D Performance",
-    description: "Analyze recent performance drop and prepare action plan",
-    priority: "high" as const,
-    dueDate: "Today",
-    status: "in-progress" as const,
-    tags: ["analysis", "urgent"]
+export const brandHealth = {
+  name: 'Brand A',
+  overallScore: 85,
+  metrics: {
+    revenue: 82,
+    growth: 78,
+    satisfaction: 95,
+    engagement: 85
   },
+  trends: {
+    revenueChange: 5.2,
+    growthChange: -2.1,
+    satisfactionChange: 3.5,
+    engagementChange: 1.8
+  }
+};
+
+export const forecastMetrics: ForecastMetric[] = [
   {
-    id: 2,
-    title: "Prepare Q2 Report",
-    description: "Compile performance data and create presentation",
-    priority: "medium" as const,
-    dueDate: "Next Week",
-    status: "todo" as const,
-    tags: ["report", "quarterly"]
-  },
-  {
-    id: 3,
-    title: "Update Marketing Budget",
-    description: "Reallocate Q2 marketing budget based on performance",
-    priority: "low" as const,
-    dueDate: "Mar 25",
-    status: "completed" as const,
-    tags: ["marketing", "budget"]
+    name: 'Revenue',
+    description: 'Projected revenue for next month',
+    currentValue: 1200000,
+    predictedValue: 1350000,
+    changePercent: 12.5,
+    confidence: 85,
+    data: Array.from({ length: 30 }, (_, i) => ({
+      date: new Date(2024, 1, i + 1).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      actual: 1200000 + Math.random() * 100000,
+      predicted: 1250000 + Math.random() * 150000,
+      confidence: [1200000, 1400000]
+    })),
+    insights: [
+      'Seasonal uptick expected due to upcoming holiday season',
+      'New product launches could drive additional 5-8% growth',
+      'Market conditions suggest strong consumer demand'
+    ]
   }
 ];
