@@ -1,7 +1,7 @@
-// file path: src/utils/styleUtils.ts
-
 import { AlertType, ColorType, StyleType } from '@/types/theme';
 import { BellIcon, BoltIcon, SparklesIcon } from '@heroicons/react/24/outline';
+
+// file path: src/utils/styleUtils.ts
 
 const colors: Record<ColorType, Record<StyleType, string>> = {
   green: {
@@ -26,8 +26,22 @@ const colors: Record<ColorType, Record<StyleType, string>> = {
   }
 };
 
-export const getColorClass = (color: ColorType, type: StyleType): string => {
-  return colors[color][type];
+const defaultColor: ColorType = 'blue';
+
+export const getColorClass = (color: ColorType | undefined, type: StyleType): string => {
+  return colors[color || defaultColor][type];
+};
+
+export const getScoreColor = (score: number): string => {
+  if (score >= 80) return 'text-green-600 bg-green-50';
+  if (score >= 60) return 'text-yellow-600 bg-yellow-50';
+  return 'text-red-600 bg-red-50';
+};
+
+export const getChangeColor = (change: number): string => {
+  if (change > 0) return 'text-green-600';
+  if (change < 0) return 'text-red-600';
+  return 'text-gray-600';
 };
 
 export const getAlertStyles = (type: AlertType) => {

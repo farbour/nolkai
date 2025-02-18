@@ -1,16 +1,9 @@
-import { CalendarIcon, ClockIcon } from '@heroicons/react/24/outline';
-
+import { CalendarIcon } from '@heroicons/react/24/outline';
+import { Event } from '@/types/dashboard';
 import React from 'react';
 
 // file path: src/components/dashboard/Calendar.tsx
 
-interface Event {
-  id: number;
-  title: string;
-  type: string;
-  date: string;
-  time: string;
-}
 
 interface CalendarProps {
   events: Event[];
@@ -39,13 +32,15 @@ export const Calendar: React.FC<CalendarProps> = ({ events }) => {
                   <h3 className="text-sm font-semibold text-gray-900">{event.title}</h3>
                   <span className="text-sm text-gray-500">{event.date}</span>
                 </div>
-                <div className="mt-1 flex items-center text-sm text-gray-500">
-                  <ClockIcon className="h-4 w-4 mr-1" />
-                  {event.time}
-                </div>
                 <div className="mt-1">
-                  <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600">
-                    {event.type}
+                  <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                    event.type === 'meeting'
+                      ? 'bg-blue-50 text-blue-700'
+                      : event.type === 'deadline'
+                      ? 'bg-red-50 text-red-700'
+                      : 'bg-gray-50 text-gray-700'
+                  }`}>
+                    {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
                   </span>
                 </div>
               </div>

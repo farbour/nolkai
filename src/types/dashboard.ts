@@ -76,6 +76,23 @@ export interface Brand {
   }[];
 }
 
+export interface BrandHealth {
+  name: string;
+  overallScore: number;
+  metrics: {
+    revenue: number;
+    growth: number;
+    satisfaction: number;
+    engagement: number;
+  };
+  trends: {
+    revenueChange: number;
+    growthChange: number;
+    satisfactionChange: number;
+    engagementChange: number;
+  };
+}
+
 export interface MarketTrend {
   id: string;
   name: string;

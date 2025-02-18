@@ -1,14 +1,10 @@
+import { Brand } from '@/types/dashboard';
+import { DashboardCard } from './DashboardCard';
 import React from 'react';
 import { TrophyIcon } from '@heroicons/react/24/outline';
+import { formatNumber } from '@/utils/formatters';
 
 // file path: src/components/dashboard/BrandPerformance.tsx
-
-interface Brand {
-  name: string;
-  revenue: number;
-  growth: number;
-  satisfaction: number;
-}
 
 interface BrandPerformanceProps {
   brands: Brand[];
@@ -16,16 +12,14 @@ interface BrandPerformanceProps {
 
 export const BrandPerformance: React.FC<BrandPerformanceProps> = ({ brands }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-      <div className="p-6 border-b border-gray-100">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">Top Performing Brands</h2>
-          <TrophyIcon className="h-5 w-5 text-gray-400" />
-        </div>
+    <DashboardCard>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-900">Top Performing Brands</h2>
+        <TrophyIcon className="h-5 w-5 text-gray-400" />
       </div>
       <div className="divide-y divide-gray-100">
         {brands.map((brand, index) => (
-          <div key={brand.name} className="p-6 hover:bg-gray-50 transition-colors">
+          <div key={brand.id} className="py-4 hover:bg-gray-50 transition-colors">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
@@ -40,12 +34,18 @@ export const BrandPerformance: React.FC<BrandPerformanceProps> = ({ brands }) =>
               <div className="ml-4 flex-1">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-gray-900">{brand.name}</h3>
-                  <p className="text-sm font-medium text-gray-900">${brand.revenue.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {formatNumber(brand.metrics[0].value)}
+                  </p>
                 </div>
                 <div className="mt-1 flex items-center justify-between text-sm">
                   <div className="flex items-center space-x-4">
-                    <span className="text-green-600">+{brand.growth}% growth</span>
-                    <span className="text-gray-500">{brand.satisfaction}% satisfaction</span>
+                    <span className={`${brand.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+                      {brand.trend === 'up' ? '+' : '-'}{brand.metrics[1].value}% growth
+                    </span>
+                    <span className="text-gray-500">
+                      {brand.metrics[2].value}% satisfaction
+                    </span>
                   </div>
                 </div>
               </div>
@@ -53,6 +53,6 @@ export const BrandPerformance: React.FC<BrandPerformanceProps> = ({ brands }) =>
           </div>
         ))}
       </div>
-    </div>
+    </DashboardCard>
   );
 };

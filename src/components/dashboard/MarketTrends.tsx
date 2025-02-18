@@ -1,27 +1,14 @@
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
+import { MarketTrend } from '@/types/dashboard';
 import React from 'react';
 
 // file path: src/components/dashboard/MarketTrends.tsx
 
-interface TrendData {
-  date: string;
-  value: number;
-  change: number;
-}
-
-interface Trend {
-  id: number;
-  name: string;
-  description: string;
-  change: string;
-  trend: 'up' | 'down';
-  data: TrendData[];
-}
 
 interface MarketTrendsProps {
-  trends: Trend[];
+  trends: MarketTrend[];
 }
 
 export const MarketTrends: React.FC<MarketTrendsProps> = ({ trends }) => {
@@ -41,12 +28,11 @@ export const MarketTrends: React.FC<MarketTrendsProps> = ({ trends }) => {
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-semibold text-gray-900">{trend.name}</h3>
                   <span className={`text-sm font-medium ${
-                    trend.trend === 'up' ? 'text-green-600' : 'text-red-600'
+                    trend.change >= 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    {trend.change}
+                    {trend.change >= 0 ? '+' : ''}{trend.change.toFixed(1)}%
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-gray-500">{trend.description}</p>
                 <div className="mt-4 h-16">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={trend.data}>
@@ -69,7 +55,7 @@ export const MarketTrends: React.FC<MarketTrendsProps> = ({ trends }) => {
                       <Line 
                         type="monotone" 
                         dataKey="value" 
-                        stroke={trend.trend === 'up' ? '#059669' : '#DC2626'}
+                        stroke={trend.change >= 0 ? '#059669' : '#DC2626'}
                         strokeWidth={2}
                         dot={false}
                       />

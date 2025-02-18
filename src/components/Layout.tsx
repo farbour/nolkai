@@ -25,17 +25,17 @@ interface LayoutProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: HomeIcon },
-  { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
-  { name: 'Products', href: '/products', icon: ShoppingBagIcon },
-  { name: 'Marketing', href: '/marketing', icon: PresentationChartBarIcon },
-  { name: 'Tools', href: '/tools', icon: Cog6ToothIcon },
-  { name: 'Market Insights', href: '/market-insights', icon: DocumentChartBarIcon },
+  { name: 'Overview', href: '/overview', icon: ChartBarIcon },
+  { name: 'E-commerce', href: '/ecommerce', icon: ShoppingBagIcon },
+  { name: 'Analysis', href: '/analysis', icon: PresentationChartBarIcon },
+  { name: 'Report', href: '/report', icon: DocumentChartBarIcon },
+  { name: 'Presentations', href: '/presentations', icon: PresentationChartBarIcon },
 ];
 
 const userNavigation = [
-  { name: 'Profile', href: '/profile', icon: UserCircleIcon },
-  { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
-  { name: 'Sign out', href: '/signout', icon: ArrowRightOnRectangleIcon },
+  { name: 'Profile', href: '/', icon: UserCircleIcon },
+  { name: 'Settings', href: '/', icon: Cog6ToothIcon },
+  { name: 'Sign out', href: '/', icon: ArrowRightOnRectangleIcon },
 ];
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {

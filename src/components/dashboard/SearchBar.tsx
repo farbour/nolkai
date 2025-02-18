@@ -6,7 +6,7 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 interface SearchResult {
   id: string;
-  type: 'brand' | 'metric' | 'task' | 'event';
+  type: 'overview' | 'ecommerce' | 'analysis' | 'report' | 'presentations';
   title: string;
   description: string;
   href: string;
@@ -24,24 +24,31 @@ export const SearchBar: React.FC = () => {
       setResults([
         {
           id: '1',
-          type: 'brand',
-          title: 'Brand A Performance',
-          description: 'Revenue and metrics for Brand A',
-          href: '#brand-a'
+          type: 'overview',
+          title: 'Overview',
+          description: 'Business overview and metrics',
+          href: '/overview'
         },
         {
           id: '2',
-          type: 'metric',
-          title: 'Revenue Overview',
-          description: 'Overall revenue performance',
-          href: '#revenue'
+          type: 'ecommerce',
+          title: 'E-commerce',
+          description: 'E-commerce performance',
+          href: '/ecommerce'
         },
         {
           id: '3',
-          type: 'task',
-          title: 'Review Brand D',
-          description: 'Analyze recent performance drop',
-          href: '#tasks'
+          type: 'analysis',
+          title: 'Analysis',
+          description: 'Detailed business analysis',
+          href: '/analysis'
+        },
+        {
+          id: '4',
+          type: 'presentations',
+          title: 'Presentations',
+          description: 'View and manage presentations',
+          href: '/presentations'
         }
       ]);
     } else {

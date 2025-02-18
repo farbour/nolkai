@@ -1,17 +1,8 @@
-import { ColorType } from '@/types/theme';
 import { FlagIcon } from '@heroicons/react/24/outline';
+import { Goal } from '@/types/dashboard';
 import React from 'react';
-import { getColorClass } from '@/utils/styleUtils';
 
 // file path: src/components/dashboard/GoalProgress.tsx
-
-interface Goal {
-  name: string;
-  target: string;
-  current: string;
-  progress: number;
-  color: ColorType;
-}
 
 interface GoalProgressProps {
   goals: Goal[];
@@ -28,14 +19,14 @@ export const GoalProgress: React.FC<GoalProgressProps> = ({ goals }) => {
       </div>
       <div className="p-6 space-y-6">
         {goals.map((goal) => (
-          <div key={goal.name} className="space-y-2">
+          <div key={goal.id} className="space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-900">{goal.name}</span>
-              <span className="text-sm text-gray-500">{goal.current} / {goal.target}</span>
+              <span className="text-sm font-medium text-gray-900">{goal.title}</span>
+              <span className="text-sm text-gray-500">{goal.progress}% of {goal.target}</span>
             </div>
             <div className="relative w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div 
-                className={`absolute top-0 left-0 h-full rounded-full transition-all ${getColorClass(goal.color, 'bg')}`}
+              <div
+                className="absolute top-0 left-0 h-full rounded-full transition-all bg-blue-500"
                 style={{ width: `${goal.progress}%` }}
               />
             </div>

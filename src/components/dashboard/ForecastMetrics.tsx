@@ -4,27 +4,11 @@ import {
 } from '@heroicons/react/24/outline';
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
+import { ForecastMetric } from '@/types/dashboard';
 import React from 'react';
 
 // file path: src/components/dashboard/ForecastMetrics.tsx
 
-interface ForecastData {
-  date: string;
-  actual: number;
-  predicted: number;
-  confidence: [number, number]; // [lower bound, upper bound]
-}
-
-interface ForecastMetric {
-  name: string;
-  description: string;
-  currentValue: number;
-  predictedValue: number;
-  changePercent: number;
-  confidence: number;
-  data: ForecastData[];
-  insights: string[];
-}
 
 interface ForecastMetricsProps {
   metrics: ForecastMetric[];

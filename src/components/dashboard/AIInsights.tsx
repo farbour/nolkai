@@ -1,19 +1,12 @@
+import { AIInsight } from '@/types/dashboard';
 import React from 'react';
 import { SparklesIcon } from '@heroicons/react/24/outline';
 
 // file path: src/components/dashboard/AIInsights.tsx
 
-interface Suggestion {
-  id: number;
-  title: string;
-  description: string;
-  impact: 'High' | 'Medium' | 'Low';
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  category: 'revenue' | 'performance';
-}
 
 interface AIInsightsProps {
-  suggestions: Suggestion[];
+  suggestions: AIInsight[];
 }
 
 export const AIInsights: React.FC<AIInsightsProps> = ({ suggestions }) => {
@@ -29,29 +22,18 @@ export const AIInsights: React.FC<AIInsightsProps> = ({ suggestions }) => {
         {suggestions.map((suggestion) => (
           <div key={suggestion.id} className="p-6 hover:bg-gray-50 transition-colors group">
             <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <div className={`p-2 rounded-lg transition-colors ${
-                  suggestion.category === 'revenue' 
-                    ? 'bg-green-50 group-hover:bg-green-100' 
-                    : 'bg-purple-50 group-hover:bg-purple-100'
-                }`}>
-                  <suggestion.icon className={`h-6 w-6 ${
-                    suggestion.category === 'revenue' 
-                      ? 'text-green-600' 
-                      : 'text-purple-600'
-                  }`} />
-                </div>
-              </div>
               <div className="ml-4">
                 <h3 className="text-base font-semibold text-gray-900">{suggestion.title}</h3>
                 <p className="mt-1 text-sm text-gray-500">{suggestion.description}</p>
                 <div className="mt-2">
                   <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
-                    suggestion.impact === 'High' 
-                      ? 'bg-green-50 text-green-700' 
-                      : 'bg-yellow-50 text-yellow-700'
+                    suggestion.impact === 'high'
+                      ? 'bg-green-50 text-green-700'
+                      : suggestion.impact === 'medium'
+                      ? 'bg-yellow-50 text-yellow-700'
+                      : 'bg-gray-50 text-gray-700'
                   }`}>
-                    {suggestion.impact} Impact
+                    {suggestion.impact.charAt(0).toUpperCase() + suggestion.impact.slice(1)} Impact
                   </span>
                 </div>
               </div>
