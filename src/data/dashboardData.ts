@@ -12,6 +12,7 @@ import {
 import { ChartBarIcon, DocumentIcon } from '@heroicons/react/24/outline';
 
 import { AlertType } from '@/types/theme';
+import { PresentationChartBarIcon } from '@heroicons/react/24/outline';
 
 // file path: src/data/dashboardData.ts
 
@@ -187,6 +188,7 @@ export const goals: Goal[] = [
   }
 ];
 
+
 export const quickActions: QuickAction[] = [
   {
     id: "1",
@@ -201,6 +203,13 @@ export const quickActions: QuickAction[] = [
     description: "Check detailed analytics",
     icon: ChartBarIcon,
     href: "/overview"
+  },
+  {
+    id: "3",
+    title: "Presentations",
+    description: "View and manage presentations",
+    icon: PresentationChartBarIcon,
+    href: "/presentations"
   }
 ];
 
