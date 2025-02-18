@@ -1,14 +1,63 @@
-import Link from 'next/link';
+import {
+  ArrowRightOnRectangleIcon,
+  Bars3Icon,
+  BellIcon,
+  BuildingStorefrontIcon,
+  ChartBarIcon,
+  ChevronDownIcon,
+  Cog6ToothIcon,
+  DocumentChartBarIcon,
+  DocumentTextIcon,
+  HomeIcon,
+  MagnifyingGlassIcon,
+  PresentationChartBarIcon,
+  ShoppingBagIcon,
+  UserCircleIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline';
+import { Menu, Transition } from '@headlessui/react';
+import React, { Fragment, useState } from 'react';
+
 // file path: src/components/Layout.tsx
-import React from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
+const navigation = {
+  main: [
+    { name: 'Home', href: '/', icon: HomeIcon },
+  ],
+  analytics: [
+    { name: 'Overview', href: '/overview', icon: ChartBarIcon },
+    { name: 'Reports', href: '/report', icon: DocumentTextIcon },
+    { name: 'Presentations', href: '/presentations', icon: PresentationChartBarIcon },
+  ],
+  ecommerce: [
+    { name: 'Dashboard', href: '/ecommerce', icon: BuildingStorefrontIcon },
+    { name: 'Analysis', href: '/analysis', icon: DocumentChartBarIcon },
+    { name: 'Products', href: '/products', icon: ShoppingBagIcon },
+  ],
+};
+
+const userNavigation = [
+  { name: 'Profile', href: '/profile', icon: UserCircleIcon },
+  { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
+  { name: 'Sign out', href: '/signout', icon: ArrowRightOnRectangleIcon },
+];
+
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    // Here you can implement search functionality
+    // For example, filtering navigation items or making API calls
+  };
   
   const isActive = (path: string) => router.pathname === path;
 
@@ -28,36 +77,322 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </svg>
                 </Link>
               </div>
-              <div className="hidden sm:ml-10 sm:flex sm:space-x-8">
-                {[
-                  { href: '/overview', label: 'Overview' },
-                  { href: '/report', label: 'Report' },
-                  { href: '/ecommerce', label: 'Ecommerce' }
-                ].map(({ href, label }) => (
+              
+              {/* Desktop Navigation */}
+              <div className="hidden lg:ml-10 lg:flex lg:space-x-8">
+                {/* Home Link */}
+                {navigation.main.map((item) => (
                   <Link
-                    key={href}
-                    href={href}
-                    className={`${
-                      isActive(href)
-                        ? 'border-nolk-green text-gray-900 bg-green-50'
-                        : 'border-transparent text-gray-600 hover:border-gray-300 hover:text-gray-900 hover:bg-gray-50'
-                    } inline-flex items-center px-4 py-2 border-b-2 text-sm font-semibold transition-colors duration-150 rounded-t-lg`}
+                    key={item.name}
+                    href={item.href}
+                    className={`inline-flex items-center px-3 py-2 text-sm font-medium ${
+                      isActive(item.href)
+                        ? 'text-nolk-green'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
                   >
-                    {label}
+                    <item.icon className="mr-2 h-5 w-5" aria-hidden="true" />
+                    {item.name}
                   </Link>
                 ))}
+
+                <Menu as="div" className="relative">
+                  <Menu.Button className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">
+                    Analytics
+                    <ChevronDownIcon className="ml-2 h-5 w-5" aria-hidden="true" />
+                  </Menu.Button>
+                  <Transition
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    <Menu.Items className="absolute z-10 mt-2 w-56 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div className="py-1">
+                        {navigation.analytics.map((item) => (
+                          <Menu.Item key={item.name}>
+                            {({ active }) => (
+                              <Link
+                                href={item.href}
+                                className={`${
+                                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                                } ${
+                                  isActive(item.href) ? 'bg-green-50' : ''
+                                } group flex items-center px-4 py-2 text-sm`}
+                              >
+                                <item.icon
+                                  className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                                  aria-hidden="true"
+                                />
+                                {item.name}
+                              </Link>
+                            )}
+                          </Menu.Item>
+                        ))}
+                      </div>
+                    </Menu.Items>
+                  </Transition>
+                </Menu>
+
+                <Menu as="div" className="relative">
+                  <Menu.Button className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">
+                    Ecommerce
+                    <ChevronDownIcon className="ml-2 h-5 w-5" aria-hidden="true" />
+                  </Menu.Button>
+                  <Transition
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    <Menu.Items className="absolute z-10 mt-2 w-56 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div className="py-1">
+                        {navigation.ecommerce.map((item) => (
+                          <Menu.Item key={item.name}>
+                            {({ active }) => (
+                              <Link
+                                href={item.href}
+                                className={`${
+                                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                                } ${
+                                  isActive(item.href) ? 'bg-green-50' : ''
+                                } group flex items-center px-4 py-2 text-sm`}
+                              >
+                                <item.icon
+                                  className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                                  aria-hidden="true"
+                                />
+                                {item.name}
+                              </Link>
+                            )}
+                          </Menu.Item>
+                        ))}
+                      </div>
+                    </Menu.Items>
+                  </Transition>
+                </Menu>
               </div>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:items-center">
+
+            {/* Right side navigation */}
+            <div className="hidden lg:ml-6 lg:flex lg:items-center space-x-4">
+              {/* Search */}
+              <div className="relative">
+                <div className="flex items-center">
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </div>
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={handleSearch}
+                      className="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-nolk-green sm:text-sm sm:leading-6"
+                      placeholder="Search..."
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Last updated indicator */}
               <div className="flex items-center space-x-2 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                 <div className="text-sm font-medium text-gray-600">
                   Last updated: {new Date().toLocaleDateString()}
                 </div>
               </div>
+
+              {/* Notifications */}
+              <button className="p-2 text-gray-400 hover:text-gray-500 rounded-full hover:bg-gray-100">
+                <span className="sr-only">View notifications</span>
+                <BellIcon className="h-6 w-6" aria-hidden="true" />
+              </button>
+
+              {/* Profile dropdown */}
+              <Menu as="div" className="relative ml-3">
+                <Menu.Button className="flex items-center text-sm rounded-full hover:bg-gray-100 p-2">
+                  <span className="sr-only">Open user menu</span>
+                  <UserCircleIcon className="h-6 w-6 text-gray-400" aria-hidden="true" />
+                </Menu.Button>
+                <Transition
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    {userNavigation.map((item) => (
+                      <Menu.Item key={item.name}>
+                        {({ active }) => (
+                          <Link
+                            href={item.href}
+                            className={`${
+                              active ? 'bg-gray-100' : ''
+                            } group flex items-center px-4 py-2 text-sm text-gray-700`}
+                          >
+                            <item.icon
+                              className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                              aria-hidden="true"
+                            />
+                            {item.name}
+                          </Link>
+                        )}
+                      </Menu.Item>
+                    ))}
+                  </Menu.Items>
+                </Transition>
+              </Menu>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="flex items-center lg:hidden">
+              <button
+                type="button"
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                <span className="sr-only">Open main menu</span>
+                {mobileMenuOpen ? (
+                  <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                ) : (
+                  <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                )}
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile menu */}
+        <Transition
+          show={mobileMenuOpen}
+          as={Fragment}
+          enter="transition ease-out duration-100"
+          enterFrom="transform opacity-0 scale-95"
+          enterTo="transform opacity-100 scale-100"
+          leave="transition ease-in duration-75"
+          leaveFrom="transform opacity-100 scale-100"
+          leaveTo="transform opacity-0 scale-95"
+        >
+          <div className="lg:hidden">
+            {/* Mobile Search */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="relative rounded-md shadow-sm">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                  <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleSearch}
+                  className="block w-full rounded-md border-0 py-2 pl-10 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-nolk-green sm:text-sm sm:leading-6"
+                  placeholder="Search..."
+                />
+              </div>
+            </div>
+
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {/* Home Section */}
+              <div className="px-3 py-2">
+                <div className="space-y-1">
+                  {navigation.main.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`${
+                        isActive(item.href)
+                          ? 'bg-green-50 text-gray-900'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      } group flex items-center px-3 py-2 text-sm font-medium rounded-md`}
+                    >
+                      <item.icon
+                        className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Analytics Section */}
+              <div className="px-3 py-2">
+                <h3 className="text-sm font-medium text-gray-500">Analytics</h3>
+                <div className="mt-2 space-y-1">
+                  {navigation.analytics.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`${
+                        isActive(item.href)
+                          ? 'bg-green-50 text-gray-900'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      } group flex items-center px-3 py-2 text-sm font-medium rounded-md`}
+                    >
+                      <item.icon
+                        className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Ecommerce Section */}
+              <div className="px-3 py-2">
+                <h3 className="text-sm font-medium text-gray-500">Ecommerce</h3>
+                <div className="mt-2 space-y-1">
+                  {navigation.ecommerce.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`${
+                        isActive(item.href)
+                          ? 'bg-green-50 text-gray-900'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      } group flex items-center px-3 py-2 text-sm font-medium rounded-md`}
+                    >
+                      <item.icon
+                        className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* User Navigation */}
+              <div className="px-3 py-2 border-t border-gray-200">
+                <h3 className="text-sm font-medium text-gray-500">Account</h3>
+                <div className="mt-2 space-y-1">
+                  {userNavigation.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-50"
+                    >
+                      <item.icon
+                        className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Transition>
       </nav>
 
       <main>
