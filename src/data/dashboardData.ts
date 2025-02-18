@@ -251,7 +251,7 @@ export const quickActions: QuickAction[] = [
     title: "Market Analysis",
     description: "View global e-commerce insights",
     icon: ChartBarIcon,
-    href: "/overview"
+    href: "/ecommerce-insights"
   },
   {
     id: "2",
@@ -272,7 +272,7 @@ export const quickActions: QuickAction[] = [
     title: "Cross-Border Stats",
     description: "View cross-border trade metrics",
     icon: ChartBarIcon,
-    href: "/ecommerce"
+    href: "/ecommerce-insights#market-size"
   }
 ];
 
