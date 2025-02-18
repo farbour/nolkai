@@ -18,47 +18,47 @@ import { PresentationChartBarIcon } from '@heroicons/react/24/outline';
 
 export const kpis: KPI[] = [
   {
-    title: "Total Revenue",
-    value: 1200000,
-    change: 12.3,
+    title: "Global E-commerce Market",
+    value: 6310,
+    change: 10.7,
     trend: 'up',
-    description: "vs. last month",
+    description: "Billion USD (2023)",
     data: Array.from({ length: 12 }, (_, i) => ({
       date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
-      value: 800000 + Math.random() * 500000
+      value: 5700 + (i * 51) + (Math.random() * 100)
     }))
   },
   {
-    title: "Active Brands",
-    value: 15,
-    change: 13.3,
+    title: "E-commerce Share of Retail",
+    value: 24.0,
+    change: 6.0,
     trend: 'up',
-    description: "vs. last month",
+    description: "% of Total Retail (2025)",
     data: Array.from({ length: 12 }, (_, i) => ({
       date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
-      value: 10 + Math.random() * 7
+      value: 18 + (i * 0.5) + (Math.random() * 2)
     }))
   },
   {
-    title: "Avg. Order Value",
-    value: 85,
-    change: 5.7,
+    title: "Global Avg. Order Value",
+    value: 165,
+    change: 3.8,
     trend: 'up',
-    description: "vs. last month",
+    description: "USD per Order",
     data: Array.from({ length: 12 }, (_, i) => ({
       date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
-      value: 70 + Math.random() * 20
+      value: 140 + (i * 2) + (Math.random() * 10)
     }))
   },
   {
-    title: "Customer Satisfaction",
-    value: 94,
-    change: 2.1,
+    title: "Mobile Commerce Share",
+    value: 70.0,
+    change: 8.5,
     trend: 'up',
-    description: "vs. last month",
+    description: "% of E-commerce",
     data: Array.from({ length: 12 }, (_, i) => ({
       date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
-      value: 90 + Math.random() * 5
+      value: 60 + (i * 0.8) + (Math.random() * 5)
     }))
   }
 ];
@@ -66,22 +66,29 @@ export const kpis: KPI[] = [
 export const alerts = [
   {
     id: 1,
-    title: "Revenue Milestone Achieved",
-    description: "Q2 revenue target of $2M has been reached",
+    title: "Market Growth Alert",
+    description: "E-commerce market projected to hit $7T in 2025, representing 23.6% of global retail",
     type: "success" as AlertType,
     time: "Just now"
   },
   {
     id: 2,
-    title: "New Brand Onboarding",
-    description: "Brand F has completed onboarding process",
+    title: "Cross-Border Opportunity",
+    description: "Cross-border e-commerce expected to reach $5T by 2028 with 25% CAGR",
     type: "info" as AlertType,
     time: "2 hours ago"
   },
   {
     id: 3,
-    title: "Performance Warning",
-    description: "Brand D's conversion rate dropped by 5%",
+    title: "Conversion Rate Insight",
+    description: "Email marketing leads with 10.3% conversion rate, significantly above other channels",
+    type: "info" as AlertType,
+    time: "5 hours ago"
+  },
+  {
+    id: 4,
+    title: "Mobile Commerce Alert",
+    description: "Mobile traffic dominates at 70% but has lower conversion. Optimization needed.",
     type: "warning" as AlertType,
     time: "1 day ago"
   }
@@ -90,60 +97,95 @@ export const alerts = [
 export const tasks: Task[] = [
   {
     id: "1",
-    title: "Review Brand D Performance",
-    description: "Analyze recent performance drop and prepare action plan",
+    title: "Optimize Mobile Checkout",
+    description: "Improve mobile conversion rate by streamlining checkout process",
     priority: "high",
-    dueDate: "2024-03-18"
+    dueDate: "2024-03-20"
   },
   {
     id: "2",
-    title: "Prepare Q2 Report",
-    description: "Compile performance data and create presentation",
-    priority: "medium",
+    title: "Expand Email Marketing",
+    description: "Leverage high conversion rate (10.3%) of email channel",
+    priority: "high",
     dueDate: "2024-03-25"
+  },
+  {
+    id: "3",
+    title: "Reduce Cart Abandonment",
+    description: "Address unexpected costs issue in checkout process",
+    priority: "urgent",
+    dueDate: "2024-03-18"
   }
 ];
 
 export const matrixTasks: Task[] = [
   {
-    id: "3",
-    title: "Review Brand D Performance",
-    description: "Analyze recent performance drop",
-    priority: "high",
-    dueDate: "2024-03-18"
+    id: "4",
+    title: "Cross-Border Strategy",
+    description: "Develop plan to capture growing cross-border market",
+    priority: "urgent-important",
+    dueDate: "2024-03-22"
   },
   {
-    id: "4",
-    title: "Update Marketing Strategy",
-    description: "Plan Q2 marketing initiatives",
-    priority: "medium",
+    id: "5",
+    title: "Mobile UX Enhancement",
+    description: "Close the gap between mobile and desktop conversion rates",
+    priority: "urgent-important",
     dueDate: "2024-03-25"
+  },
+  {
+    id: "6",
+    title: "Western Europe Expansion",
+    description: "Plan market entry strategy for high-converting region",
+    priority: "not-urgent-important",
+    dueDate: "2024-04-15"
+  },
+  {
+    id: "7",
+    title: "Subscription Model Analysis",
+    description: "Evaluate opportunity in growing subscription commerce",
+    priority: "not-urgent-important",
+    dueDate: "2024-04-30"
   }
 ];
 
 export const aiSuggestions: AIInsight[] = [
   {
     id: "1",
-    title: "Revenue Opportunity",
-    description: "Based on current trends, increasing marketing spend in Q2 could boost revenue by 15%",
+    title: "Market Growth Opportunity",
+    description: "Global e-commerce market expected to reach $7.95T by 2027. Consider expanding cross-border operations to capture growth.",
     impact: "high",
-    category: "revenue"
+    category: "growth"
   },
   {
     id: "2",
-    title: "Performance Alert",
-    description: "Conversion rates have dropped 5% in the last week",
+    title: "Mobile Commerce Trend",
+    description: "70% of e-commerce traffic is mobile, but desktop conversion rates are 1.7x higher. Priority: Optimize mobile checkout experience.",
+    impact: "high",
+    category: "optimization"
+  },
+  {
+    id: "3",
+    title: "Cart Abandonment Alert",
+    description: "70% of shopping carts are abandoned. Top reason: unexpected costs (49%). Consider showing total costs earlier in checkout.",
+    impact: "high",
+    category: "conversion"
+  },
+  {
+    id: "4",
+    title: "Regional Opportunity",
+    description: "Western Europe shows highest conversion rates (5.2%). Consider prioritizing expansion in this region.",
     impact: "medium",
-    category: "performance"
+    category: "expansion"
   }
 ];
 
 export const performanceMetrics = [
-  { month: 'Jan', revenue: 800000, orders: 12000 },
-  { month: 'Feb', revenue: 920000, orders: 14500 },
-  { month: 'Mar', revenue: 880000, orders: 13200 },
-  { month: 'Apr', revenue: 1100000, orders: 16800 },
-  { month: 'May', revenue: 1200000, orders: 18500 }
+  { month: 'Jan', revenue: 5700000, orders: 1200000 },
+  { month: 'Feb', revenue: 5850000, orders: 1250000 },
+  { month: 'Mar', revenue: 6000000, orders: 1300000 },
+  { month: 'Apr', revenue: 6150000, orders: 1350000 },
+  { month: 'May', revenue: 6310000, orders: 1400000 }
 ];
 
 export const brandPerformance: Brand[] = [
@@ -174,17 +216,31 @@ export const brandPerformance: Brand[] = [
 export const goals: Goal[] = [
   {
     id: "1",
-    title: "Q2 Revenue Target",
-    progress: 60,
-    target: 2000000,
+    title: "Mobile Conversion Rate",
+    progress: 65,
+    target: 4,
     dueDate: "2024-06-30"
   },
   {
     id: "2",
-    title: "Brand Expansion",
-    progress: 75,
-    target: 20,
+    title: "Cross-Border Sales",
+    progress: 40,
+    target: 31,
     dueDate: "2024-12-31"
+  },
+  {
+    id: "3",
+    title: "Cart Abandonment Rate",
+    progress: 35,
+    target: 50,
+    dueDate: "2024-09-30"
+  },
+  {
+    id: "4",
+    title: "Email Marketing Conversion",
+    progress: 80,
+    target: 10,
+    dueDate: "2024-06-30"
   }
 ];
 
@@ -192,51 +248,100 @@ export const goals: Goal[] = [
 export const quickActions: QuickAction[] = [
   {
     id: "1",
-    title: "Create Report",
-    description: "Generate a new performance report",
-    icon: DocumentIcon,
-    href: "/report"
-  },
-  {
-    id: "2",
-    title: "View Analytics",
-    description: "Check detailed analytics",
+    title: "Market Analysis",
+    description: "View global e-commerce insights",
     icon: ChartBarIcon,
     href: "/overview"
   },
   {
+    id: "2",
+    title: "Mobile Performance",
+    description: "Check mobile commerce metrics",
+    icon: DocumentIcon,
+    href: "/report"
+  },
+  {
     id: "3",
-    title: "Presentations",
-    description: "View and manage presentations",
+    title: "Regional Insights",
+    description: "Analyze regional market data",
     icon: PresentationChartBarIcon,
     href: "/presentations"
+  },
+  {
+    id: "4",
+    title: "Cross-Border Stats",
+    description: "View cross-border trade metrics",
+    icon: ChartBarIcon,
+    href: "/ecommerce"
   }
 ];
 
 export const upcomingEvents: Event[] = [
   {
     id: "1",
-    title: "Q2 Performance Review",
+    title: "Mobile UX Review",
     date: "2024-03-19",
     type: "meeting"
   },
   {
     id: "2",
-    title: "Brand F Onboarding Call",
+    title: "Cross-Border Strategy Planning",
     date: "2024-03-20",
     type: "meeting"
+  },
+  {
+    id: "3",
+    title: "Cart Abandonment Analysis",
+    date: "2024-03-22",
+    type: "meeting"
+  },
+  {
+    id: "4",
+    title: "Western Europe Market Entry",
+    date: "2024-03-25",
+    type: "deadline"
   }
 ];
 
 export const marketTrends: MarketTrend[] = [
   {
     id: "1",
-    name: "E-commerce Growth",
-    value: 8.5,
-    change: 2.1,
+    name: "Global E-commerce Growth",
+    value: 23.6,
+    change: 15.2,
     data: Array.from({ length: 12 }, (_, i) => ({
       date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
-      value: 5 + Math.random() * 8
+      value: 18 + Math.random() * 12
+    }))
+  },
+  {
+    id: "2",
+    name: "Cross-Border Commerce",
+    value: 31.0,
+    change: 8.5,
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
+      value: 25 + Math.random() * 10
+    }))
+  },
+  {
+    id: "3",
+    name: "Mobile Commerce Share",
+    value: 70.0,
+    change: 12.3,
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
+      value: 60 + Math.random() * 15
+    }))
+  },
+  {
+    id: "4",
+    name: "Subscription Commerce",
+    value: 450.0,
+    change: 35.0,
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
+      value: 350 + Math.random() * 150
     }))
   }
 ];
@@ -260,22 +365,43 @@ export const brandHealth = {
 
 export const forecastMetrics: ForecastMetric[] = [
   {
-    name: 'Revenue',
-    description: 'Projected revenue for next month',
-    currentValue: 1200000,
-    predictedValue: 1350000,
-    changePercent: 12.5,
-    confidence: 85,
+    name: 'Global E-commerce Market',
+    description: 'Projected market size and growth',
+    currentValue: 6310000,
+    predictedValue: 7000000,
+    changePercent: 10.9,
+    confidence: 92,
     data: Array.from({ length: 30 }, (_, i) => ({
       date: new Date(2024, 1, i + 1).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      actual: 1200000 + Math.random() * 100000,
-      predicted: 1250000 + Math.random() * 150000,
-      confidence: [1200000, 1400000]
+      actual: 6310000 + (i * 20000),
+      predicted: 6400000 + (i * 25000),
+      confidence: [6300000, 7100000]
     })),
     insights: [
-      'Seasonal uptick expected due to upcoming holiday season',
-      'New product launches could drive additional 5-8% growth',
-      'Market conditions suggest strong consumer demand'
+      'Market expected to exceed $7T by 2025, reaching 23.6% of global retail',
+      'Mobile commerce to represent 70% of e-commerce transactions',
+      'Cross-border e-commerce growing at 25% CAGR, reaching $5T by 2028',
+      'Subscription commerce sector showing explosive growth, projected $450B by 2025'
+    ]
+  },
+  {
+    name: 'Regional Performance',
+    description: 'Key regional market indicators',
+    currentValue: 100,
+    predictedValue: 115,
+    changePercent: 15.0,
+    confidence: 88,
+    data: Array.from({ length: 30 }, (_, i) => ({
+      date: new Date(2024, 1, i + 1).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      actual: 100 + (i * 0.5),
+      predicted: 105 + (i * 0.6),
+      confidence: [95, 120]
+    })),
+    insights: [
+      'Western Europe leads with 5.2% conversion rate',
+      'Asia Pacific accounts for 60%+ of global e-commerce GMV',
+      'North America maintains 20% global market share',
+      'Emerging markets showing rapid growth with 13%+ CAGR'
     ]
   }
 ];
