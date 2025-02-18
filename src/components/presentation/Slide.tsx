@@ -1,7 +1,10 @@
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
+
 import Logo from '../Logo';
+import MDEditor from '@uiw/react-md-editor';
 // file path: src/components/presentation/Slide.tsx
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
 import remarkGfm from 'remark-gfm';
 
@@ -17,127 +20,209 @@ interface SlideProps {
   content: SlideContent;
   isActive: boolean;
   isPresentationMode: boolean;
+  isEditMode?: boolean;
+  onContentChange?: (newContent: string) => void;
 }
 
-interface CodeBlockProps {
-  inline?: boolean;
-  className?: string;
-  children?: React.ReactNode;
-}
+// Helper function to extract text content from React elements
+const extractTextContent = (node: React.ReactNode): string => {
+  if (typeof node === 'string' || typeof node === 'number' || typeof node === 'boolean') {
+    return node.toString();
+  }
+  
+  if (Array.isArray(node)) {
+    return node.map(extractTextContent).join('\n');
+  }
+  
+  if (React.isValidElement(node)) {
+    const props = node.props as { children?: React.ReactNode };
+    if (props.children) {
+      return extractTextContent(props.children);
+    }
+  }
+  
+  return '';
+};
 
-const Slide: React.FC<SlideProps> = ({ content, isActive, isPresentationMode }) => {
-  const renderContent = () => {
+export const Slide: React.FC<SlideProps> = ({
+  content,
+  isActive,
+  isPresentationMode,
+  isEditMode = false,
+  onContentChange,
+}) => {
+  const [showHtml, setShowHtml] = React.useState(false);
+  const [editableContent, setEditableContent] = React.useState(() => {
     if (typeof content.content === 'string') {
-      return (
-        <ReactMarkdown 
-          remarkPlugins={[remarkGfm]}
-          components={{
-            h1: ({ children }) => (
-              <h1 className="text-4xl font-bold mb-6">{children}</h1>
-            ),
-            h2: ({ children }) => (
-              <h2 className="text-3xl font-semibold mb-4">{children}</h2>
-            ),
-            h3: ({ children }) => (
-              <h3 className="text-2xl font-medium mb-3">{children}</h3>
-            ),
-            p: ({ children }) => (
-              <p className="mb-4 text-lg">{children}</p>
-            ),
-            ul: ({ children }) => (
-              <ul className="list-disc pl-6 mb-4">{children}</ul>
-            ),
-            ol: ({ children }) => (
-              <ol className="list-decimal pl-6 mb-4">{children}</ol>
-            ),
-            li: ({ children }) => (
-              <li className="mb-2">{children}</li>
-            ),
-            code: ({ inline, className, children }: CodeBlockProps) => (
-              <code
-                className={`${className} ${
-                  inline 
-                    ? 'bg-gray-100 rounded px-1' 
-                    : 'block bg-gray-800 text-white p-4 rounded-lg overflow-auto'
-                }`}
+      return content.content;
+    }
+    // For React components, return the actual content
+    if (React.isValidElement(content.content)) {
+      return extractTextContent(content.content);
+    }
+    return '';
+  });
+
+  // Update editable content when the slide content changes
+  React.useEffect(() => {
+    if (typeof content.content === 'string') {
+      setEditableContent(content.content);
+    } else if (React.isValidElement(content.content)) {
+      // For React components, use the actual content
+      setEditableContent(extractTextContent(content.content));
+    }
+  }, [content.id, content.title, content.content]);
+
+  // Handle content changes
+  const handleContentChange = (newContent: string) => {
+    setEditableContent(newContent);
+    onContentChange?.(newContent);
+  };
+
+  const renderContent = () => {
+    if (isEditMode && !isPresentationMode) {
+      if (showHtml) {
+        return (
+          <div className="w-full h-full">
+            <div className="mb-2 flex justify-end">
+              <button
+                onClick={() => setShowHtml(false)}
+                className="px-2 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
               >
-                {children}
-              </code>
-            ),
-          }}
-        >
-          {content.content}
-        </ReactMarkdown>
+                Switch to Markdown
+              </button>
+            </div>
+            <textarea
+              value={editableContent}
+              onChange={(e) => handleContentChange(e.target.value)}
+              className="w-full h-[calc(100%-40px)] p-4 font-mono text-sm bg-white border border-gray-200 rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter HTML content here..."
+              spellCheck={false}
+            />
+          </div>
+        );
+      }
+
+      return (
+        <div className="w-full h-full" data-color-mode="light">
+          <div className="mb-2 flex justify-end">
+            <button
+              onClick={() => setShowHtml(true)}
+              className="px-2 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Edit HTML
+            </button>
+          </div>
+          <MDEditor
+            value={editableContent}
+            onChange={(value) => handleContentChange(value || '')}
+            preview="edit"
+            hideToolbar={false}
+            height="calc(100% - 40px)"
+            className="!border-0 !bg-transparent md-editor-wrapper"
+            textareaProps={{
+              placeholder: 'Add your slide content here...',
+            }}
+            previewOptions={{
+              remarkPlugins: [remarkGfm],
+            }}
+          />
+        </div>
       );
     }
-    return content.content;
+
+    // In view mode, show the content
+    if (typeof content.content === 'string') {
+      return (
+        <div data-color-mode="light" className="w-full h-full">
+          <div className="wmde-markdown prose prose-lg max-w-none">
+            <MDEditor.Markdown
+              source={content.content.replace(/^# .*\n/, '')} // Remove the first heading
+              remarkPlugins={[remarkGfm]}
+              style={{
+                whiteSpace: 'pre-wrap',
+                background: 'transparent',
+              }}
+              wrapperElement={{
+                "data-color-mode": "light"
+              }}
+              components={{
+                code: (props) => {
+                  const { children, className, ...rest } = props;
+                  const isInline = !className?.includes('code-block');
+                  return isInline ? (
+                    <code {...rest} className="px-1 py-0.5 rounded bg-gray-100">
+                      {children}
+                    </code>
+                  ) : (
+                    <pre className="p-4 rounded-lg bg-gray-800 text-white overflow-x-auto">
+                      <code {...rest}>{children}</code>
+                    </pre>
+                  );
+                }
+              }}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    // If content is a React component, render it directly
+    if (React.isValidElement(content.content)) {
+      return (
+        <div className="w-full h-full">
+          {content.content}
+        </div>
+      );
+    }
+
+    return null;
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 100 }}
+      initial={{ opacity: 0, scale: 0.95 }}
       animate={{ 
         opacity: isActive ? 1 : 0,
-        x: isActive ? 0 : 100,
-        pointerEvents: isActive ? 'auto' : 'none',
-        scale: isPresentationMode ? 1 : 0.95
+        scale: isActive ? 1 : 0.95,
+        pointerEvents: isActive ? 'auto' : 'none'
       }}
-      transition={{ duration: 0.5 }}
-      className={`absolute ${
-        isPresentationMode 
-          ? 'inset-0 flex items-center justify-center' 
-          : 'inset-0 flex items-center justify-center p-8'
-      }`}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="w-full h-full flex items-center justify-center p-4"
     >
-      {/* Main slide container */}
-      <div className={`bg-white rounded-lg ${
+      <div className={`relative bg-white rounded-lg shadow-2xl ${
         isPresentationMode 
-          ? 'w-full h-full max-w-none shadow-none' 
-          : 'w-full max-w-5xl h-auto shadow-xl'
-      }`}>
-        {/* 16:9 aspect ratio container */}
-        <div className="relative" style={{ paddingTop: '56.25%' }}>
-          <div className="absolute inset-0 flex flex-col">
-            {/* Header - Hidden in presentation mode */}
-            {!isPresentationMode && (
-              <div className="flex items-center justify-between px-8 py-4 border-b border-gray-200">
-                <h2 className="text-2xl font-semibold text-gray-800 truncate max-w-2xl">
-                  {content.title}
-                </h2>
-                <Logo height={24} className="opacity-50" />
-              </div>
-            )}
+          ? 'w-[90vw] h-[90vh]' 
+          : 'w-[80vw] h-[80vh]'
+      } max-w-[1600px] max-h-[900px]`}>
+        {/* Header - Hidden in presentation mode */}
+        {!isPresentationMode && (
+          <div className="absolute top-0 left-0 right-0 h-12 px-6 flex items-center justify-between border-b border-gray-200 bg-white/80 backdrop-blur-sm z-10">
+            <h2 className="text-lg font-medium text-gray-800 truncate max-w-2xl">
+              {content.title}
+            </h2>
+            <Logo height={20} className="opacity-40" />
+          </div>
+        )}
 
-            {/* Content Area */}
-            <div className={`flex-1 ${
-              isPresentationMode 
-                ? 'p-12' 
-                : 'p-8'
-            } overflow-auto prose prose-lg max-w-none`}>
+        {/* Content Area */}
+        <div className={`w-full h-full ${
+          isPresentationMode
+            ? 'p-16'
+            : isEditMode ? 'p-4 pt-16' : 'p-12 pt-16'
+        }`}>
+          <div className={`h-full flex flex-col ${!isEditMode && 'justify-center'} overflow-y-auto`}>
+            <div className="flex-1 flex flex-col justify-center">
               {renderContent()}
             </div>
-
-            {/* Footer - Hidden in presentation mode */}
-            {!isPresentationMode && content.slideNumber && content.totalSlides && (
-              <div className="flex items-center justify-between px-8 py-3 border-t border-gray-200">
-                <div className="text-sm text-gray-500">
-                  {/* Additional info can go here */}
-                </div>
-                <div className="text-sm text-gray-500">
-                  Slide {content.slideNumber} of {content.totalSlides}
-                </div>
-              </div>
-            )}
           </div>
         </div>
-      </div>
 
-      {/* Presentation Mode Slide Number */}
-      {isPresentationMode && content.slideNumber && content.totalSlides && (
-        <div className="fixed bottom-4 right-4 text-sm text-white bg-black/50 px-3 py-1 rounded-full">
+        {/* Slide Number */}
+        <div className="absolute bottom-4 right-4 text-sm text-gray-400">
           {content.slideNumber} / {content.totalSlides}
         </div>
-      )}
+      </div>
     </motion.div>
   );
 };

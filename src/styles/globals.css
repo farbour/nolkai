@@ -2,44 +2,183 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 248, 250, 252;
+/* Markdown Editor Styles */
+.md-editor-wrapper {
+  background: transparent !important;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+.md-editor-wrapper .w-md-editor-toolbar {
+  background: transparent !important;
+  border: none !important;
 }
 
-.react-datepicker-wrapper {
-  width: 100%;
+.md-editor-wrapper .w-md-editor-content {
+  background: transparent !important;
+  border: none !important;
 }
 
-.react-datepicker__input-container input {
-  width: 100%;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
-  outline: none;
+.md-editor-wrapper .w-md-editor-text-input {
+  background: transparent !important;
+  font-size: 1.125rem !important;
+  line-height: 1.75rem !important;
 }
 
-.react-datepicker__input-container input:focus {
-  border-color: #3b82f6;
-  ring: 2px;
-  ring-color: #93c5fd;
+.md-editor-wrapper .w-md-editor-text {
+  color: #1f2937 !important;
 }
 
-select[multiple] {
-  height: 120px;
+.md-editor-wrapper .w-md-editor-preview {
+  box-shadow: none !important;
+  background: transparent !important;
 }
 
-.recharts-wrapper {
-  font-family: inherit;
+/* Hide the resize handle since we control the size */
+.md-editor-wrapper .w-md-editor-bar {
+  display: none !important;
 }
 
-.recharts-tooltip-wrapper {
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+/* Markdown Preview Styles */
+.wmde-markdown {
+  background: transparent !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  padding: 0 !important;
+  color: #1f2937 !important;
+}
+
+.wmde-markdown h1 {
+  font-size: 3.5rem !important;
+  font-weight: 800 !important;
+  margin-bottom: 3rem !important;
+  text-align: center !important;
+  color: #1f2937 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.wmde-markdown h2 {
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 2rem !important;
+  text-align: center !important;
+  color: #1f2937 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.wmde-markdown h3 {
+  font-size: 2rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 1.5rem !important;
+  color: #1f2937 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.wmde-markdown p {
+  font-size: 1.125rem !important;
+  line-height: 1.75 !important;
+  margin-bottom: 1.5rem !important;
+  color: #1f2937 !important;
+}
+
+.wmde-markdown ul {
+  list-style-type: disc !important;
+  padding-left: 2rem !important;
+  margin-bottom: 1.5rem !important;
+  margin-top: 1rem !important;
+}
+
+.wmde-markdown ol {
+  list-style-type: decimal !important;
+  padding-left: 2rem !important;
+  margin-bottom: 1.5rem !important;
+  margin-top: 1rem !important;
+}
+
+.wmde-markdown li {
+  font-size: 1.25rem !important;
+  line-height: 1.75 !important;
+  margin-bottom: 0.75rem !important;
+  color: #1f2937 !important;
+  display: list-item !important;
+}
+
+.wmde-markdown li::marker {
+  color: #4b5563 !important;
+}
+
+.wmde-markdown li > p {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  display: inline-block !important;
+}
+
+.wmde-markdown code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.875rem !important;
+  padding: 0.125rem 0.375rem !important;
+  border-radius: 0.25rem !important;
+  background-color: #f3f4f6 !important;
+  color: #1f2937 !important;
+}
+
+.wmde-markdown pre {
+  margin: 1rem 0 !important;
+  padding: 1rem !important;
+  background-color: #1f2937 !important;
+  border-radius: 0.5rem !important;
+  overflow-x: auto !important;
+}
+
+.wmde-markdown pre code {
+  background-color: transparent !important;
+  color: #f3f4f6 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.wmde-markdown img {
+  max-width: 100% !important;
+  height: auto !important;
+  margin: 1rem auto !important;
+  display: block !important;
+}
+
+.wmde-markdown a {
+  color: #2563eb !important;
+  text-decoration: underline !important;
+}
+
+.wmde-markdown a:hover {
+  color: #1d4ed8 !important;
+}
+
+.wmde-markdown blockquote {
+  border-left: 4px solid #e5e7eb !important;
+  padding-left: 1rem !important;
+  margin: 1rem 0 !important;
+  color: #4b5563 !important;
+  font-style: italic !important;
+}
+
+.wmde-markdown table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 1rem 0 !important;
+}
+
+.wmde-markdown th,
+.wmde-markdown td {
+  border: 1px solid #e5e7eb !important;
+  padding: 0.5rem !important;
+  text-align: left !important;
+}
+
+.wmde-markdown th {
+  background-color: #f3f4f6 !important;
+  font-weight: 600 !important;
+}
+
+/* Code block syntax highlighting */
+.wmde-markdown-color {
+  background: transparent !important;
+  color: inherit !important;
 }

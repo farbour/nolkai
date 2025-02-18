@@ -7,16 +7,29 @@ interface SlideThumbnailProps {
   index: number;
   isActive: boolean;
   onClick: () => void;
-  snapshot?: string;
 }
 
-const SlideThumbnail: React.FC<SlideThumbnailProps> = ({
+export const SlideThumbnail: React.FC<SlideThumbnailProps> = ({
   slide,
   index,
   isActive,
   onClick,
-  snapshot,
 }) => {
+  // Extract the first heading or first line of content
+  const getSlideLabel = () => {
+    if (typeof slide.content === 'string') {
+      // Look for the first heading
+      const headingMatch = slide.content.match(/^#+ (.+)$/m);
+      if (headingMatch) {
+        return headingMatch[1];
+      }
+      // If no heading found, take the first non-empty line
+      const firstLine = slide.content.split('\n').find(line => line.trim() !== '');
+      return firstLine || slide.title;
+    }
+    return slide.title;
+  };
+
   return (
     <button
       onClick={onClick}
@@ -28,26 +41,19 @@ const SlideThumbnail: React.FC<SlideThumbnailProps> = ({
     >
       {/* Thumbnail Container with 16:9 aspect ratio */}
       <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-        <div className="absolute inset-0 bg-white rounded-lg shadow-sm overflow-hidden">
-          {snapshot ? (
-            // Display snapshot if available
-            <img 
-              src={snapshot} 
-              alt={`Slide ${index + 1}`}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            // Fallback loading state
-            <div className="w-full h-full flex items-center justify-center bg-gray-50">
-              <div className="text-[10px] text-gray-400">Loading preview...</div>
+        <div className="absolute inset-0 bg-white border border-gray-200 rounded-lg overflow-hidden">
+          {/* Slide Number Badge */}
+          <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full font-medium shadow-sm z-10">
+            {index + 1}
+          </div>
+
+          {/* Content Container */}
+          <div className="absolute inset-0 p-4 flex flex-col">
+            <div className="text-sm font-medium text-gray-700 line-clamp-3 text-center mt-4">
+              {getSlideLabel()}
             </div>
-          )}
+          </div>
         </div>
-      </div>
-      
-      {/* Slide Number Badge */}
-      <div className="absolute top-2 left-2 bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-medium shadow-sm">
-        {index + 1}
       </div>
     </button>
   );

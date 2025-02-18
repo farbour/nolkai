@@ -1,74 +1,32 @@
 // file path: src/hooks/useSlideSnapshots.ts
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import html2canvas from 'html2canvas';
-
-interface SnapshotWorkerMessage {
-  success: boolean;
-  snapshot?: string;
-  error?: string;
-  slideId: string;
-}
 
 export function useSlideSnapshots() {
   const [snapshots, setSnapshots] = useState<Record<string, string>>({});
   const [isGenerating, setIsGenerating] = useState(false);
-  const workerRef = useRef<Worker | null>(null);
-  const pendingSnapshotsRef = useRef<Map<string, boolean>>(new Map());
+  const pendingSnapshotsRef = useRef<Set<string>>(new Set());
   const snapshotCacheRef = useRef<Record<string, string>>({});
 
-  // Initialize worker
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    try {
-      workerRef.current = new Worker('/snapshotWorker.js');
-
-      workerRef.current.onerror = (error) => {
-        console.error('Worker error:', error);
-        setIsGenerating(false);
-      };
-
-      workerRef.current.onmessage = (event: MessageEvent<SnapshotWorkerMessage>) => {
-        const { success, snapshot, error, slideId } = event.data;
-        
-        if (success && snapshot && slideId) {
-          setSnapshots(prev => ({
-            ...prev,
-            [slideId]: snapshot
-          }));
-          snapshotCacheRef.current[slideId] = snapshot;
-          pendingSnapshotsRef.current.delete(slideId);
-        } else if (error) {
-          console.error('Snapshot generation error:', error);
-          if (slideId) {
-            pendingSnapshotsRef.current.delete(slideId);
-          }
-        }
-
-        if (pendingSnapshotsRef.current.size === 0) {
-          setIsGenerating(false);
-        }
-      };
-
-      return () => {
-        if (workerRef.current) {
-          workerRef.current.terminate();
-          workerRef.current = null;
-        }
-      };
-    } catch (error) {
-      console.error('Failed to initialize worker:', error);
-    }
-  }, []);
-
   const generateSnapshot = useCallback(async (slideId: string, element: HTMLElement) => {
-    if (!workerRef.current || pendingSnapshotsRef.current.has(slideId)) {
+    console.log('Generating snapshot for slide:', slideId, {
+      elementDimensions: {
+        width: element.offsetWidth,
+        height: element.offsetHeight,
+        scrollWidth: element.scrollWidth,
+        scrollHeight: element.scrollHeight,
+      }
+    });
+
+    if (pendingSnapshotsRef.current.has(slideId)) {
+      console.log('Already generating snapshot for slide:', slideId);
       return;
     }
 
     // Use cached snapshot if available
     if (snapshotCacheRef.current[slideId]) {
+      console.log('Using cached snapshot for slide:', slideId);
       setSnapshots(prev => ({
         ...prev,
         [slideId]: snapshotCacheRef.current[slideId]
@@ -77,35 +35,73 @@ export function useSlideSnapshots() {
     }
 
     try {
-      pendingSnapshotsRef.current.set(slideId, true);
+      pendingSnapshotsRef.current.add(slideId);
       setIsGenerating(true);
 
-      // Capture the initial image in the main thread
-      const canvas = await html2canvas(element, {
+      // Find the actual slide content element
+      const slideContent = element.querySelector('[class*="bg-white"]') as HTMLElement;
+      if (!slideContent) {
+        throw new Error('Could not find slide content element');
+      }
+
+      console.log('Found slide content element:', {
+        dimensions: {
+          width: slideContent.clientWidth,
+          height: slideContent.clientHeight,
+        },
+        classes: slideContent.className
+      });
+
+      // Wait for any images to load
+      const images = Array.from(slideContent.getElementsByTagName('img'));
+      await Promise.all(
+        images.map(img => 
+          img.complete 
+            ? Promise.resolve() 
+            : new Promise(resolve => {
+                img.onload = resolve;
+                img.onerror = resolve;
+              })
+        )
+      );
+
+      const canvas = await html2canvas(slideContent, {
         backgroundColor: 'white',
-        logging: false,
+        logging: true,
         useCORS: true,
-        scale: 1, // Capture at full resolution
-        removeContainer: true, // Clean up temporary elements
+        scale: 0.25,
+        removeContainer: true,
+        allowTaint: true,
+        foreignObjectRendering: true,
+        onclone: (clonedDoc, clonedElement) => {
+          console.log('Cloned element:', {
+            width: clonedElement.offsetWidth,
+            height: clonedElement.offsetHeight,
+            html: clonedElement.innerHTML.substring(0, 100) + '...'
+          });
+        }
       });
 
-      // Get the image data
-      const imageData = canvas.toDataURL('image/png', 1);
-
-      // Send to worker for scaling
-      workerRef.current.postMessage({
-        slideId,
-        imageData,
-        scale: 0.25
-      });
+      const snapshot = canvas.toDataURL('image/png', 0.8);
+      console.log('Generated snapshot for slide:', slideId);
+      
+      setSnapshots(prev => ({
+        ...prev,
+        [slideId]: snapshot
+      }));
+      snapshotCacheRef.current[slideId] = snapshot;
     } catch (error) {
-      console.error('Error capturing initial snapshot:', error);
+      console.error('Error generating snapshot:', error);
+    } finally {
       pendingSnapshotsRef.current.delete(slideId);
-      setIsGenerating(false);
+      if (pendingSnapshotsRef.current.size === 0) {
+        setIsGenerating(false);
+      }
     }
   }, []);
 
   const clearSnapshot = useCallback((slideId: string) => {
+    console.log('Clearing snapshot for slide:', slideId);
     setSnapshots(prev => {
       const newSnapshots = { ...prev };
       delete newSnapshots[slideId];
@@ -116,6 +112,7 @@ export function useSlideSnapshots() {
   }, []);
 
   const clearAllSnapshots = useCallback(() => {
+    console.log('Clearing all snapshots');
     setSnapshots({});
     snapshotCacheRef.current = {};
     pendingSnapshotsRef.current.clear();

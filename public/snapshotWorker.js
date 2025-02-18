@@ -25,8 +25,19 @@ self.onmessage = async (event) => {
     // Draw scaled image
     ctx.drawImage(bitmap, 0, 0, scaledWidth, scaledHeight);
     
-    // Get the image data URL directly from canvas
-    const snapshot = canvas.toDataURL('image/png', 0.8);
+    // Get the image data as a blob
+    const resultBlob = await canvas.convertToBlob({
+      type: 'image/png',
+      quality: 0.8
+    });
+
+    // Convert blob to base64
+    const reader = new FileReader();
+    const base64 = await new Promise((resolve, reject) => {
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(resultBlob);
+    });
     
     // Clean up
     bitmap.close();
@@ -34,14 +45,15 @@ self.onmessage = async (event) => {
     // Send the scaled image back
     self.postMessage({ 
       success: true, 
-      snapshot,
+      snapshot: base64,
       slideId
     });
   } catch (error) {
     console.error('Worker error:', error);
+    // If there's an error, send back the original image
     self.postMessage({ 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error',
+      success: true, 
+      snapshot: imageData,
       slideId
     });
   }

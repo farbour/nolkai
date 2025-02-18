@@ -3,8 +3,6 @@ import { createTypedRow, parseCSV, parseNumericValue } from "../utils/csvParser"
 // file path: src/pages/analysis.tsx
 import { useEffect, useMemo, useState } from "react";
 
-import { Layout } from "../components/Layout";
-
 // Define the structure for our CSV data
 interface DataPoint {
   Brand: string;
@@ -198,145 +196,139 @@ export default function AnalysisPage() {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-nolk-green mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading data...</p>
-          </div>
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-nolk-green mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading data...</p>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Layout>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <p className="text-red-800">{error}</p>
-        </div>
-      </Layout>
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <p className="text-red-800">{error}</p>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="space-y-8">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-nolk-green">Data Analysis</h1>
-          <div className="flex gap-4">
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-nolk-green">Data Analysis</h1>
+        <div className="flex gap-4">
+          <select
+            value={selectedMetric}
+            onChange={(e) => setSelectedMetric(e.target.value)}
+            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nolk-green/20 focus:border-nolk-green"
+          >
+            {metrics.map(metric => (
+              <option key={`metric-${metric}`} value={metric}>{metric}</option>
+            ))}
+          </select>
+          <select
+            value={selectedBrand}
+            onChange={(e) => setSelectedBrand(e.target.value)}
+            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nolk-green/20 focus:border-nolk-green"
+          >
+            {brands.map(brand => (
+              <option key={`brand-${brand}`} value={brand}>{brand}</option>
+            ))}
+          </select>
+          {selectedBrand !== 'All Brands' && (
             <select
-              value={selectedMetric}
-              onChange={(e) => setSelectedMetric(e.target.value)}
+              value={comparisonBrand}
+              onChange={(e) => setComparisonBrand(e.target.value)}
               className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nolk-green/20 focus:border-nolk-green"
             >
-              {metrics.map(metric => (
-                <option key={`metric-${metric}`} value={metric}>{metric}</option>
+              <option value="">Select comparison brand...</option>
+              {comparisonBrands.map(brand => (
+                <option key={`comparison-${brand}`} value={brand}>{brand}</option>
               ))}
             </select>
-            <select
-              value={selectedBrand}
-              onChange={(e) => setSelectedBrand(e.target.value)}
-              className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nolk-green/20 focus:border-nolk-green"
-            >
-              {brands.map(brand => (
-                <option key={`brand-${brand}`} value={brand}>{brand}</option>
-              ))}
-            </select>
-            {selectedBrand !== 'All Brands' && (
-              <select
-                value={comparisonBrand}
-                onChange={(e) => setComparisonBrand(e.target.value)}
-                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nolk-green/20 focus:border-nolk-green"
-              >
-                <option value="">Select comparison brand...</option>
-                {comparisonBrands.map(brand => (
-                  <option key={`comparison-${brand}`} value={brand}>{brand}</option>
-                ))}
-              </select>
-            )}
-          </div>
-        </div>
-
-        {/* Summary Statistics */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Summary Statistics</h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="text-sm text-gray-500">Mean</div>
-              <div className="text-lg font-semibold">{statistics.mean.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="text-sm text-gray-500">Median</div>
-              <div className="text-lg font-semibold">{statistics.median.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="text-sm text-gray-500">Std Dev</div>
-              <div className="text-lg font-semibold">{statistics.stdDev.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="text-sm text-gray-500">Min</div>
-              <div className="text-lg font-semibold">{statistics.min.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="text-sm text-gray-500">Max</div>
-              <div className="text-lg font-semibold">{statistics.max.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Trend Analysis */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Trend Analysis</h2>
-          <div className="h-96">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#344C45" 
-                  name={selectedMetric} 
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Distribution Analysis */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Distribution Analysis</h2>
-          <p className="text-gray-600">
-            The data shows a {statistics.mean > statistics.median ? 'positive' : 'negative'} skew, 
-            with a mean of {statistics.mean.toLocaleString(undefined, { maximumFractionDigits: 2 })} 
-            and a median of {statistics.median.toLocaleString(undefined, { maximumFractionDigits: 2 })}.
-            The standard deviation of {statistics.stdDev.toLocaleString(undefined, { maximumFractionDigits: 2 })} 
-            indicates {statistics.stdDev > statistics.mean ? 'high' : 'moderate'} variability in the data.
-          </p>
-          {comparisonBrand && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-semibold mb-2">Correlation Analysis</h3>
-              <p className="text-gray-600">
-                The correlation coefficient between {selectedBrand} and {comparisonBrand} is{' '}
-                <span className="font-semibold">{statistics.correlation?.toFixed(3)}</span>
-                {statistics.correlation && (
-                  <span>
-                    , indicating a {
-                      Math.abs(statistics.correlation) > 0.7 ? 'strong' :
-                      Math.abs(statistics.correlation) > 0.3 ? 'moderate' :
-                      'weak'
-                    } {statistics.correlation > 0 ? 'positive' : 'negative'} relationship
-                  </span>
-                )}.
-              </p>
-            </div>
           )}
         </div>
       </div>
-    </Layout>
+
+      {/* Summary Statistics */}
+      <div className="bg-white shadow rounded-lg p-6">
+        <h2 className="text-xl font-semibold mb-4">Summary Statistics</h2>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-sm text-gray-500">Mean</div>
+            <div className="text-lg font-semibold">{statistics.mean.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-sm text-gray-500">Median</div>
+            <div className="text-lg font-semibold">{statistics.median.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-sm text-gray-500">Std Dev</div>
+            <div className="text-lg font-semibold">{statistics.stdDev.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-sm text-gray-500">Min</div>
+            <div className="text-lg font-semibold">{statistics.min.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-sm text-gray-500">Max</div>
+            <div className="text-lg font-semibold">{statistics.max.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Trend Analysis */}
+      <div className="bg-white shadow rounded-lg p-6">
+        <h2 className="text-xl font-semibold mb-4">Trend Analysis</h2>
+        <div className="h-96">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={trendData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line 
+                type="monotone" 
+                dataKey="value" 
+                stroke="#344C45" 
+                name={selectedMetric} 
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Distribution Analysis */}
+      <div className="bg-white shadow rounded-lg p-6">
+        <h2 className="text-xl font-semibold mb-4">Distribution Analysis</h2>
+        <p className="text-gray-600">
+          The data shows a {statistics.mean > statistics.median ? 'positive' : 'negative'} skew, 
+          with a mean of {statistics.mean.toLocaleString(undefined, { maximumFractionDigits: 2 })} 
+          and a median of {statistics.median.toLocaleString(undefined, { maximumFractionDigits: 2 })}.
+          The standard deviation of {statistics.stdDev.toLocaleString(undefined, { maximumFractionDigits: 2 })} 
+          indicates {statistics.stdDev > statistics.mean ? 'high' : 'moderate'} variability in the data.
+        </p>
+        {comparisonBrand && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <h3 className="font-semibold mb-2">Correlation Analysis</h3>
+            <p className="text-gray-600">
+              The correlation coefficient between {selectedBrand} and {comparisonBrand} is{' '}
+              <span className="font-semibold">{statistics.correlation?.toFixed(3)}</span>
+              {statistics.correlation && (
+                <span>
+                  , indicating a {
+                    Math.abs(statistics.correlation) > 0.7 ? 'strong' :
+                    Math.abs(statistics.correlation) > 0.3 ? 'moderate' :
+                    'weak'
+                  } {statistics.correlation > 0 ? 'positive' : 'negative'} relationship
+                </span>
+              )}.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

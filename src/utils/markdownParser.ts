@@ -17,13 +17,22 @@ export interface Presentation {
  * Slides are separated by '---' and the first line of each slide is the title.
  */
 export function parseMarkdownToSlides(markdown: string): MarkdownSlide[] {
+  console.log('Parsing markdown:', markdown);
+  
   // Split the markdown into slides using horizontal rule as separator
   const slideTexts = markdown.split('\n---\n');
+  console.log('Split into slides:', slideTexts);
   
   return slideTexts.map((slideText, index) => {
     const lines = slideText.trim().split('\n');
-    const title = lines[0].replace(/^#\s+/, ''); // Remove heading marker if present
-    const content = lines.slice(1).join('\n').trim();
+    console.log(`Processing slide ${index + 1}:`, lines);
+    
+    const titleLine = lines[0];
+    const title = titleLine.replace(/^#\s+/, ''); // Remove heading marker if present
+    
+    // Keep the title in the content for proper markdown rendering
+    const content = lines.join('\n').trim();
+    console.log(`Slide ${index + 1} processed:`, { title, content });
     
     return {
       id: `slide-${index + 1}`,
@@ -38,22 +47,31 @@ export function parseMarkdownToSlides(markdown: string): MarkdownSlide[] {
  */
 export async function loadPresentation(id: string): Promise<Presentation | null> {
   try {
+    console.log('Loading presentation:', id);
+    // Fix the URL path to point to the correct location
     const response = await fetch(`/presentations/${id}/slides.md`);
     if (!response.ok) {
+      console.error('Failed to load presentation:', response.status, response.statusText);
       throw new Error(`Failed to load presentation: ${response.statusText}`);
     }
     
     const markdown = await response.text();
+    console.log('Loaded markdown:', markdown);
+    
     const slides = parseMarkdownToSlides(markdown);
+    console.log('Parsed slides:', slides);
     
     // The presentation title is the first slide's title
     const title = slides[0]?.title || 'Untitled Presentation';
     
-    return {
+    const presentation = {
       id,
       title,
       slides
     };
+    
+    console.log('Returning presentation:', presentation);
+    return presentation;
   } catch (error) {
     console.error('Error loading presentation:', error);
     return null;
@@ -72,7 +90,8 @@ export function createNewPresentation(): string {
  * Validates a presentation ID format
  */
 export function isValidPresentationId(id: string): boolean {
-  return /^pres-\d+-[a-z0-9]+$/.test(id);
+  // Allow both generated IDs and example presentation ID
+  return /^(pres-\d+-[a-z0-9]+|example-presentation)$/.test(id);
 }
 
 /**

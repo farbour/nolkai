@@ -6,9 +6,10 @@ import Presentation from './Presentation';
 
 interface PresentationLoaderProps {
   presentationId: string;
+  isAuthenticated: boolean;
 }
 
-const PresentationLoader: React.FC<PresentationLoaderProps> = ({ presentationId }) => {
+const PresentationLoader: React.FC<PresentationLoaderProps> = ({ presentationId, isAuthenticated }) => {
   const [presentation, setPresentation] = useState<PresentationType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,8 +17,11 @@ const PresentationLoader: React.FC<PresentationLoaderProps> = ({ presentationId 
   useEffect(() => {
     const loadPresentationData = async () => {
       try {
+        console.log('Loading presentation with ID:', presentationId);
         setIsLoading(true);
         const data = await loadPresentation(presentationId);
+        console.log('Loaded presentation data:', data);
+        
         if (data) {
           setPresentation(data);
           setError(null);
@@ -25,6 +29,7 @@ const PresentationLoader: React.FC<PresentationLoaderProps> = ({ presentationId 
           setError('Failed to load presentation');
         }
       } catch (err) {
+        console.error('Error in PresentationLoader:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setIsLoading(false);
@@ -74,7 +79,8 @@ const PresentationLoader: React.FC<PresentationLoaderProps> = ({ presentationId 
     );
   }
 
-  return <Presentation slides={presentation.slides} />;
+  console.log('Rendering presentation with slides:', presentation.slides);
+  return <Presentation slides={presentation.slides} isAuthenticated={isAuthenticated} />;
 };
 
 export default PresentationLoader;

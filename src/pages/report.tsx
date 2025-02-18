@@ -3,7 +3,7 @@ import { ProcessedData, processReportData } from '@/utils/reportDataProcessor';
 import React, { useEffect, useState } from 'react';
 import ReportSection, { MetricCard } from '@/components/ReportSection';
 
-import Image from 'next/image';
+import Logo from '@/components/Logo';
 import Presentation from '@/components/presentation/Presentation';
 import { SlideContent } from '@/components/presentation/Slide';
 import { SortableTable } from '@/components/SortableTable';
@@ -77,13 +77,7 @@ const Report = () => {
       content: (
         <div className="flex flex-col items-center justify-center h-full space-y-8 py-12">
           <div className="w-48 h-48 relative mb-8">
-            <Image
-              src="/nolk-logo.svg"
-              alt="Nolk Logo"
-              fill
-              className="object-contain"
-              priority
-            />
+          <Logo />
           </div>
           <h1 className="text-4xl font-bold text-gray-800 text-center">
             Monthly Performance Report
@@ -249,13 +243,7 @@ const Report = () => {
             For questions or detailed analysis, please contact the Nolk Analytics Team
           </p>
           <div className="w-32 h-32 relative mt-8">
-            <Image
-              src="/nolk-logo.svg"
-              alt="Nolk Logo"
-              fill
-              className="object-contain"
-              priority
-            />
+            <Logo />
           </div>
           <div className="mt-8 text-gray-500 text-center">
             <p>© {new Date().getFullYear()} Nolk</p>
@@ -278,7 +266,7 @@ const Report = () => {
       </div>
 
       {isPresentationMode ? (
-        <Presentation slides={slides} />
+        <Presentation slides={slides} isAuthenticated={false} />
       ) : (
         <div className="space-y-6">
           {slides.slice(2, -2).map((slide) => (
