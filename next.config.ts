@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  transpilePackages: ['@uiw/react-md-editor', '@uiw/react-markdown-preview'],
   webpack: (config) => {
     config.module.rules.push({
       test: /\.csv$/,
@@ -10,14 +11,12 @@ const nextConfig: NextConfig = {
     });
     return config;
   },
-  async redirects() {
-    return [
-      {
-        source: '/',
-        destination: '/overview',
-        permanent: true,
+  experimental: {
+    turbo: {
+      rules: {
+        '*.csv': ['raw-loader'],
       },
-    ];
+    },
   },
 };
 
