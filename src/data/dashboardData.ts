@@ -21,28 +21,44 @@ export const kpis: KPI[] = [
     value: 1200000,
     change: 12.3,
     trend: 'up',
-    description: "vs. last month"
+    description: "vs. last month",
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
+      value: 800000 + Math.random() * 500000
+    }))
   },
   {
     title: "Active Brands",
     value: 15,
-    change: 2,
+    change: 13.3,
     trend: 'up',
-    description: "vs. last month"
+    description: "vs. last month",
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
+      value: 10 + Math.random() * 7
+    }))
   },
   {
     title: "Avg. Order Value",
     value: 85,
     change: 5.7,
     trend: 'up',
-    description: "vs. last month"
+    description: "vs. last month",
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
+      value: 70 + Math.random() * 20
+    }))
   },
   {
     title: "Customer Satisfaction",
     value: 94,
     change: 2.1,
     trend: 'up',
-    description: "vs. last month"
+    description: "vs. last month",
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, i).toLocaleString('default', { month: 'short' }),
+      value: 90 + Math.random() * 5
+    }))
   }
 ];
 

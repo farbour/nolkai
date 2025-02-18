@@ -1,6 +1,7 @@
 // file path: src/types/dashboard.ts
 
-export type Priority = 'low' | 'medium' | 'high' | 'urgent';
+export type Priority = 'low' | 'medium' | 'high' | 'urgent' | 
+  'urgent-important' | 'not-urgent-important' | 'urgent-not-important' | 'not-urgent-not-important';
 
 export interface Task {
   id: string;
@@ -34,6 +35,10 @@ export interface KPI {
   change: number;
   trend: 'up' | 'down';
   description: string;
+  data?: Array<{
+    date: string;
+    value: number;
+  }>;
 }
 
 export interface Goal {
