@@ -1,0 +1,105 @@
+{
+  "AdvertisingAndCAC": {
+    "CustomerAcquisitionCost": {
+      "Global": {
+        "AverageCAC": 45,
+        "Unit": "USD",
+        "Breakdown": {
+          "eCommerce": {
+            "B2C": {
+              "SmallToMedium": 35,
+              "Enterprise": 60,
+              "Notes": "SMBs typically have lower CAC compared to large enterprises due to less complex sales cycles."
+            },
+            "B2B": {
+              "SmallToMedium": 55,
+              "Enterprise": 80,
+              "Notes": "B2B CAC is generally higher because of longer decision cycles and multiple stakeholders."
+            }
+          }
+        },
+        "Source": "Various studies (HubSpot, Forrester, 2022)"
+      },
+      "ByRegion": {
+        "NorthAmerica": 50,
+        "Europe": 47,
+        "AsiaPacific": 40,
+        "LatinAmerica": 35,
+        "MEA": 38
+      }
+    },
+    "AdvertisingSpend": {
+      "Global": {
+        "TotalDigitalAdSpend": 520,
+        "Unit": "Billion USD",
+        "Year": 2023,
+        "Notes": "Global digital ad spend grew about 12% in 2023, reaching over 520 Billion USD."
+      },
+      "ByPlatform": {
+        "Meta": {
+          "Spend": 200,
+          "Unit": "Billion USD",
+          "Year": 2023,
+          "Notes": "Meta's ad revenue, driven by Facebook and Instagram, continues to dominate social advertising."
+        },
+        "GoogleAds": {
+          "Spend": 150,
+          "Unit": "Billion USD",
+          "Year": 2023,
+          "Notes": "Google Ads retains the largest share of search ad spend globally."
+        },
+        "TikTok": {
+          "Spend": 20,
+          "Unit": "Billion USD",
+          "Year": 2023,
+          "Notes": "TikTok's ad spend is rapidly growing, with forecasts predicting over 50 Billion USD by 2026."
+        },
+        "AmazonAds": {
+          "Spend": 12,
+          "Unit": "Billion USD",
+          "Year": 2023,
+          "Notes": "Amazon's ad revenue is expanding as more brands advertise directly on its platform."
+        },
+        "Others": {
+          "Spend": 138,
+          "Unit": "Billion USD",
+          "Year": 2023,
+          "Notes": "This includes spending on platforms such as Twitter, LinkedIn, Pinterest, and others."
+        }
+      },
+      "ByRegion": {
+        "NorthAmerica": 220,
+        "Europe": 150,
+        "AsiaPacific": 110,
+        "LatinAmerica": 30,
+        "MEA": 10
+      }
+    },
+    "AdvertisingPerformance": {
+      "Meta": {
+        "AverageCTR": "0.90%",
+        "AverageCPC": 0.97,
+        "Unit": "USD",
+        "Notes": "Meta CTR and CPC vary by industry; average CPC in 2023 was around 0.97 USD."
+      },
+      "GoogleAds": {
+        "AverageCTR": "3.17%",
+        "AverageCPC": 2.69,
+        "Unit": "USD",
+        "Notes": "Google Ads typically shows a higher CPC, particularly in competitive sectors."
+      },
+      "TikTok": {
+        "AverageCTR": "1.5%",
+        "AverageCPC": 1.20,
+        "Unit": "USD",
+        "Notes": "TikTok's performance metrics are emerging, with creative formats driving engagement."
+      },
+      "AmazonAds": {
+        "AverageCTR": "0.5-1.0%",
+        "AverageCPC": 0.81,
+        "Unit": "USD",
+        "Notes": "Amazon Ads performance can vary by product category, with higher demand items achieving better metrics."
+      }
+    }
+  }
+}

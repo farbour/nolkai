@@ -1,14 +1,15 @@
-import "@/styles/globals.css";
+import '@/styles/globals.css';
 
-import type { AppProps } from "next/app";
-import { Layout } from "@/components/Layout";
-
-// file path: src/pages/_app.tsx
+import type { AppProps } from 'next/app';
+import { BrandProvider } from '../context/BrandContext';
+import Layout from '../components/Layout';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <BrandProvider>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </BrandProvider>
   );
 }

@@ -1,333 +1,313 @@
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { createTypedRow, parseCSV, parseNumericValue } from "../utils/csvParser";
 // file path: src/pages/analysis.tsx
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from 'react';
 
-// Define the structure for our CSV data
-interface DataPoint {
-  Brand: string;
-  'KPI Name': string;
-  'KPI Unit': string;
-  'Month of Date': string;
-  'Year of Date': string;
-  'This Period Value': string;
-}
+import { BrandComparison } from '../components/analysis/BrandComparison';
+import { BrandDataItem } from '../config/brands';
+import { BrandSelector } from '../components/BrandSelector';
+import { DataSelector } from '../components/analysis/DataSelector';
+import { DateSelector } from '../components/analysis/DateSelector';
+import { KPICard } from '../components/analysis/KPICard';
+import { parseCSV } from '../utils/csvParser';
+import { useBrand } from '../context/BrandContext';
 
-// Structure for our computed statistics
-interface Statistics {
-  mean: number;
-  median: number;
-  stdDev: number;
-  min: number;
-  max: number;
-  correlation?: number;
-}
+type MetricConfig = {
+  title: string;
+  metric: string;
+  unit: '%' | '$' | 'Number';
+};
 
-// Structure for trend data
-interface TrendPoint {
-  month: string;
-  value: number;
-  id: string;
-}
+const PERFORMANCE_METRICS: MetricConfig[] = [
+  { title: 'TACOS', metric: 'TACOS', unit: '%' },
+  { title: 'ACOS', metric: 'ACOS', unit: '%' },
+  { title: 'Conversion Rate', metric: 'Conversion Rate', unit: '%' },
+  { title: 'Repeat Rate', metric: 'Repeat Rate', unit: '%' },
+];
 
-// ---------- Utility Functions for Analysis ----------
+const REVENUE_METRICS: MetricConfig[] = [
+  { title: 'Gross Revenue', metric: 'Gross Revenue', unit: '$' },
+  { title: 'Net Revenue', metric: 'Net Revenue', unit: '$' },
+  { title: 'D2C Net Revenue', metric: 'D2C Net Revenue', unit: '$' },
+];
 
-// Compute the mean of an array of numbers
-function computeMean(data: number[]): number {
-  if (data.length === 0) return 0;
-  const sum = data.reduce((acc, cur) => acc + cur, 0);
-  return sum / data.length;
-}
+const CUSTOMER_METRICS: MetricConfig[] = [
+  { title: 'LTV', metric: 'LTV', unit: '$' },
+  { title: 'CAC', metric: 'CAC', unit: '$' },
+  { title: 'D2C Net AOV', metric: 'D2C Net AOV', unit: '$' },
+  { title: 'Cross-Sell Rate', metric: '% Cross-Sell Customers', unit: '%' },
+];
 
-// Compute the median of an array of numbers
-function computeMedian(data: number[]): number {
-  if (data.length === 0) return 0;
-  const sorted = [...data].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 0
-    ? (sorted[mid - 1] + sorted[mid]) / 2
-    : sorted[mid];
-}
+const EMAIL_METRICS: MetricConfig[] = [
+  { title: 'Email Open Rate', metric: 'Email Open Rate', unit: '%' },
+  { title: 'Email Click Rate', metric: 'Email Click Rate', unit: '%' },
+  { title: 'Email Click Through Rate', metric: 'Email Click Through Rate', unit: '%' },
+];
 
-// Compute the standard deviation of an array of numbers
-function computeStdDev(data: number[]): number {
-  if (data.length === 0) return 0;
-  const mean = computeMean(data);
-  const variance = computeMean(data.map((x) => Math.pow(x - mean, 2)));
-  return Math.sqrt(variance);
-}
-
-// Return the minimum value in an array
-function computeMin(data: number[]): number {
-  if (data.length === 0) return 0;
-  return Math.min(...data);
-}
-
-// Return the maximum value in an array
-function computeMax(data: number[]): number {
-  if (data.length === 0) return 0;
-  return Math.max(...data);
-}
-
-export default function AnalysisPage() {
-  const [data, setData] = useState<DataPoint[]>([]);
-  const [selectedMetric, setSelectedMetric] = useState<string>("Gross Revenue");
-  const [selectedBrand, setSelectedBrand] = useState<string>("All Brands");
-  const [comparisonBrand, setComparisonBrand] = useState<string>("");
-  const [statistics, setStatistics] = useState<Statistics>({
-    mean: 0,
-    median: 0,
-    stdDev: 0,
-    min: 0,
-    max: 0,
-    correlation: 0
-  });
-  const [trendData, setTrendData] = useState<TrendPoint[]>([]);
+export default function Analysis() {
+  const { selectedBrand } = useBrand();
+  const [data, setData] = useState<BrandDataItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [comparisonBrands, setComparisonBrands] = useState<string[]>([]);
+  const [selectedDataFile, setSelectedDataFile] = useState('/data.csv');
+  const [selectedDate, setSelectedDate] = useState<{ month: string; year: string }>({ month: '', year: '' });
+  const [availableDates, setAvailableDates] = useState<{ month: string; year: string }[]>([]);
 
-  // Load and parse CSV data
   useEffect(() => {
-    const loadData = async () => {
+    const fetchData = async () => {
       try {
         const response = await fetch('/data.csv');
-        if (!response.ok) throw new Error('Failed to fetch data');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data: ${response.statusText}`);
+        }
         
         const text = await response.text();
         const { headers, rows } = parseCSV(text);
         
-        const parsedData: DataPoint[] = rows
-          .map(row => createTypedRow<DataPoint>(headers, row))
-          .filter(row => 
-            row.Brand && 
-            row['KPI Name'] && 
-            row['This Period Value'] && 
-            !isNaN(parseNumericValue(row['This Period Value']))
-          );
+        const parsedData = rows.map(values => {
+          const item: BrandDataItem = {
+            Brand: '',
+            'KPI Name': '',
+            'KPI Unit': '',
+            'Month of Date': '',
+            'Year of Date': '',
+            'This Period Value': 0,
+          };
+          
+          headers.forEach((header, index) => {
+            if (header === 'This Period Value') {
+              const rawValue = values[index];
+              const cleanValue = rawValue.replace(/["\$]/g, '');
+              if (!cleanValue || cleanValue === 'n/a') {
+                item[header] = 0;
+              } else {
+                const parsedValue = parseFloat(cleanValue.replace(/,/g, '')) || 0;
+                item[header] = parsedValue;
+              }
+            } else {
+              item[header] = values[index];
+            }
+          });
+          
+          return item;
+        });
 
         setData(parsedData);
+        
+        // Get unique brands and set comparison brands
+        const uniqueBrands = Array.from(new Set(parsedData.map(item => item.Brand)));
+        setComparisonBrands([selectedBrand, ...uniqueBrands.filter(b => b !== selectedBrand).slice(0, 2)]);
+        
+        // Get unique dates
+        const dates = Array.from(new Set(parsedData.map(item => `${item['Month of Date']}-${item['Year of Date']}`)))
+          .map(date => {
+            const [month, year] = date.split('-');
+            return { month, year };
+          })
+          .sort((a, b) => {
+            const dateA = new Date(`${a.month} 1, ${a.year}`);
+            const dateB = new Date(`${b.month} 1, ${b.year}`);
+            return dateB.getTime() - dateA.getTime();
+          });
+        
+        setAvailableDates(dates);
+        if (dates.length > 0 && !selectedDate.month) {
+          setSelectedDate(dates[0]);
+        }
+        
         setLoading(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load data');
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : 'Failed to load data');
         setLoading(false);
       }
     };
 
-    loadData();
-  }, []);
+    fetchData();
+  }, [selectedBrand, selectedDataFile, selectedDate.month]);
 
-  // Compute statistics when metric or brand selection changes
-  useEffect(() => {
-    if (!data.length) return;
-
-    const filteredData = data.filter(d => 
-      d['KPI Name'] === selectedMetric &&
-      (selectedBrand === 'All Brands' || d.Brand === selectedBrand)
+  const getLatestValue = (metric: string): { value: number | string; displayValue: string } => {
+    const brandData = data.filter(item =>
+      item.Brand === selectedBrand &&
+      item['KPI Name'] === metric &&
+      item['Month of Date'] === selectedDate.month &&
+      item['Year of Date'] === selectedDate.year
     );
-
-    const values = filteredData.map(d => parseNumericValue(d['This Period Value']));
-
-    // Calculate correlation if comparison brand is selected
-    let correlation = 0;
-    if (comparisonBrand && selectedBrand !== 'All Brands') {
-      const brand1Data = data
-        .filter(d => d['KPI Name'] === selectedMetric && d.Brand === selectedBrand)
-        .map(d => parseNumericValue(d['This Period Value']));
-      
-      const brand2Data = data
-        .filter(d => d['KPI Name'] === selectedMetric && d.Brand === comparisonBrand)
-        .map(d => parseNumericValue(d['This Period Value']));
-
-      if (brand1Data.length === brand2Data.length && brand1Data.length > 0) {
-        const meanX = computeMean(brand1Data);
-        const meanY = computeMean(brand2Data);
-        
-        const numerator = brand1Data.reduce(
-          (acc, xi, i) => acc + (xi - meanX) * (brand2Data[i] - meanY),
-          0
-        );
-        
-        const denominator = Math.sqrt(
-          brand1Data.reduce((acc, xi) => acc + Math.pow(xi - meanX, 2), 0) *
-          brand2Data.reduce((acc, yi) => acc + Math.pow(yi - meanY, 2), 0)
-        );
-        
-        correlation = denominator === 0 ? 0 : numerator / denominator;
-      }
-    }
-
-    setStatistics({
-      mean: computeMean(values),
-      median: computeMedian(values),
-      stdDev: computeStdDev(values),
-      min: computeMin(values),
-      max: computeMax(values),
-      correlation
-    });
-
-    // Prepare trend data
-    const trendPoints = filteredData
-      .sort((a, b) => {
-        const dateA = new Date(`${a['Month of Date']} ${a['Year of Date']}`);
-        const dateB = new Date(`${b['Month of Date']} ${b['Year of Date']}`);
-        return dateA.getTime() - dateB.getTime();
-      })
-      .map((d, index) => ({
-        month: `${d['Month of Date']} ${d['Year of Date']}`,
-        value: parseNumericValue(d['This Period Value']),
-        id: `${d.Brand}-${d['Month of Date']}-${d['Year of Date']}-${index}`
-      }));
-
-    setTrendData(trendPoints);
-  }, [data, selectedMetric, selectedBrand, comparisonBrand]);
-
-  // Memoize metrics and brands lists
-  const { metrics, brands, comparisonBrands } = useMemo(() => {
-    const uniqueMetrics = Array.from(new Set(data.map(d => d['KPI Name'])));
-    const uniqueBrands = ['All Brands', ...Array.from(new Set(data.map(d => d.Brand)))];
-    const availableComparisonBrands = uniqueBrands.filter(b => b !== selectedBrand && b !== 'All Brands');
     
-    return {
-      metrics: uniqueMetrics,
-      brands: uniqueBrands,
-      comparisonBrands: availableComparisonBrands
+    if (brandData.length === 0) {
+      return { value: 'n/a', displayValue: 'n/a' };
+    }
+    
+    const value = brandData[0]['This Period Value'];
+    return { 
+      value: value === 0 ? 'n/a' : value,
+      displayValue: value === 0 ? 'n/a' : value.toString()
     };
-  }, [data, selectedBrand]);
+  };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-nolk-green mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <p className="text-red-800">{error}</p>
-      </div>
-    );
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-nolk-green">Data Analysis</h1>
-        <div className="flex gap-4">
-          <select
-            value={selectedMetric}
-            onChange={(e) => setSelectedMetric(e.target.value)}
-            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nolk-green/20 focus:border-nolk-green"
-          >
-            {metrics.map(metric => (
-              <option key={`metric-${metric}`} value={metric}>{metric}</option>
-            ))}
-          </select>
-          <select
-            value={selectedBrand}
-            onChange={(e) => setSelectedBrand(e.target.value)}
-            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nolk-green/20 focus:border-nolk-green"
-          >
-            {brands.map(brand => (
-              <option key={`brand-${brand}`} value={brand}>{brand}</option>
-            ))}
-          </select>
-          {selectedBrand !== 'All Brands' && (
-            <select
-              value={comparisonBrand}
-              onChange={(e) => setComparisonBrand(e.target.value)}
-              className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nolk-green/20 focus:border-nolk-green"
-            >
-              <option value="">Select comparison brand...</option>
-              {comparisonBrands.map(brand => (
-                <option key={`comparison-${brand}`} value={brand}>{brand}</option>
-              ))}
-            </select>
-          )}
+    <div className="space-y-8 p-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 md:space-x-4">
+        <h2 className="text-2xl font-bold text-gray-900">Brand Performance Analysis</h2>
+        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+          <BrandSelector />
+          <DateSelector
+            dates={availableDates}
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+          />
+          <DataSelector
+            currentFile={selectedDataFile}
+            onFileChange={setSelectedDataFile}
+          />
         </div>
       </div>
 
-      {/* Summary Statistics */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Summary Statistics</h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="text-sm text-gray-500">Mean</div>
-            <div className="text-lg font-semibold">{statistics.mean.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="text-sm text-gray-500">Median</div>
-            <div className="text-lg font-semibold">{statistics.median.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="text-sm text-gray-500">Std Dev</div>
-            <div className="text-lg font-semibold">{statistics.stdDev.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="text-sm text-gray-500">Min</div>
-            <div className="text-lg font-semibold">{statistics.min.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="text-sm text-gray-500">Max</div>
-            <div className="text-lg font-semibold">{statistics.max.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Trend Analysis */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Trend Analysis</h2>
-        <div className="h-96">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={trendData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="value" 
-                stroke="#344C45" 
-                name={selectedMetric} 
+      {/* Performance Metrics */}
+      <div className="space-y-2">
+        <h3 className="text-xl font-semibold text-gray-800">Performance Metrics</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {PERFORMANCE_METRICS.map(({ title, metric, unit }) => {
+            const { value } = getLatestValue(metric);
+            return (
+              <KPICard
+                key={metric}
+                title={title}
+                value={value}
+                unit={unit}
               />
-            </LineChart>
-          </ResponsiveContainer>
+            );
+          })}
         </div>
       </div>
 
-      {/* Distribution Analysis */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Distribution Analysis</h2>
-        <p className="text-gray-600">
-          The data shows a {statistics.mean > statistics.median ? 'positive' : 'negative'} skew, 
-          with a mean of {statistics.mean.toLocaleString(undefined, { maximumFractionDigits: 2 })} 
-          and a median of {statistics.median.toLocaleString(undefined, { maximumFractionDigits: 2 })}.
-          The standard deviation of {statistics.stdDev.toLocaleString(undefined, { maximumFractionDigits: 2 })} 
-          indicates {statistics.stdDev > statistics.mean ? 'high' : 'moderate'} variability in the data.
-        </p>
-        {comparisonBrand && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold mb-2">Correlation Analysis</h3>
-            <p className="text-gray-600">
-              The correlation coefficient between {selectedBrand} and {comparisonBrand} is{' '}
-              <span className="font-semibold">{statistics.correlation?.toFixed(3)}</span>
-              {statistics.correlation && (
-                <span>
-                  , indicating a {
-                    Math.abs(statistics.correlation) > 0.7 ? 'strong' :
-                    Math.abs(statistics.correlation) > 0.3 ? 'moderate' :
-                    'weak'
-                  } {statistics.correlation > 0 ? 'positive' : 'negative'} relationship
-                </span>
-              )}.
-            </p>
-          </div>
-        )}
+      {/* Revenue Metrics */}
+      <div className="space-y-6">
+        <h3 className="text-xl font-semibold text-gray-800">Revenue Performance</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          {REVENUE_METRICS.map(({ title, metric, unit }) => {
+            const { value } = getLatestValue(metric);
+            return (
+              <KPICard
+                key={metric}
+                title={title}
+                value={value}
+                unit={unit}
+              />
+            );
+          })}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <BrandComparison
+            data={data}
+            brands={comparisonBrands}
+            metric="Gross Revenue"
+            title="Gross Revenue Trend"
+            unit="$"
+          />
+          <BrandComparison
+            data={data}
+            brands={comparisonBrands}
+            metric="Net Revenue"
+            title="Net Revenue Trend"
+            unit="$"
+          />
+        </div>
+      </div>
+
+      {/* Customer Metrics */}
+      <div className="space-y-6">
+        <h3 className="text-xl font-semibold text-gray-800">Customer Metrics</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          {CUSTOMER_METRICS.map(({ title, metric, unit }) => {
+            const { value } = getLatestValue(metric);
+            return (
+              <KPICard
+                key={metric}
+                title={title}
+                value={value}
+                unit={unit}
+              />
+            );
+          })}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <BrandComparison
+            data={data}
+            brands={comparisonBrands}
+            metric="LTV"
+            title="Customer Lifetime Value"
+            unit="$"
+          />
+          <BrandComparison
+            data={data}
+            brands={comparisonBrands}
+            metric="CAC"
+            title="Customer Acquisition Cost"
+            unit="$"
+          />
+        </div>
+      </div>
+
+      {/* Email Performance */}
+      <div className="space-y-6">
+        <h3 className="text-xl font-semibold text-gray-800">Email Performance</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          {EMAIL_METRICS.map(({ title, metric, unit }) => {
+            const { value } = getLatestValue(metric);
+            return (
+              <KPICard
+                key={metric}
+                title={title}
+                value={value}
+                unit={unit}
+              />
+            );
+          })}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <BrandComparison
+            data={data}
+            brands={comparisonBrands}
+            metric="Email Open Rate"
+            title="Email Open Rate"
+            unit="%"
+          />
+          <BrandComparison
+            data={data}
+            brands={comparisonBrands}
+            metric="Email Click Rate"
+            title="Email Click Rate"
+            unit="%"
+          />
+        </div>
+      </div>
+
+      {/* Brand Selection */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-700 mb-4">Compare with other brands</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {Array.from(new Set(data.map(item => item.Brand)))
+            .filter(brand => brand !== selectedBrand)
+            .map((brand) => (
+              <label key={brand} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={comparisonBrands.includes(brand)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setComparisonBrands([...comparisonBrands, brand].slice(0, 3));
+                    } else {
+                      setComparisonBrands(comparisonBrands.filter(b => b !== brand));
+                    }
+                  }}
+                  className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                />
+                <span className="text-sm text-gray-700">{brand}</span>
+              </label>
+            ))}
+        </div>
       </div>
     </div>
   );

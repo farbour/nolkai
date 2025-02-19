@@ -1,3 +1,4 @@
+import { AdvertisingInsightsSection } from '@/components/ecommerce/sections/AdvertisingInsightsSection';
 import { ConversionRatesSection } from '@/components/ecommerce/sections/ConversionRatesSection';
 import { FutureOutlookSection } from '@/components/ecommerce/sections/FutureOutlookSection';
 import { FutureTrendsSection } from '@/components/ecommerce/sections/FutureTrendsSection';
@@ -11,6 +12,7 @@ const EcommerceReport: React.FC = () => (
   <div className="min-h-screen bg-[#FDF8F4]">
     <HeroSection />
     <MarketGrowthSection />
+    <AdvertisingInsightsSection />
     <ConversionRatesSection />
     <FutureTrendsSection />
     <KeyInsightsSection />

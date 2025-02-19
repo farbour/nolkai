@@ -15,7 +15,7 @@ import {
 import { Menu, Transition } from '@headlessui/react';
 import React, { Fragment, useState } from 'react';
 
-// file path: src/components/Layout.tsx
+import { BrandSelector } from './BrandSelector';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -38,14 +38,13 @@ const userNavigation = [
   { name: 'Sign out', href: '/', icon: ArrowRightOnRectangleIcon },
 ];
 
-export const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout = ({ children }: LayoutProps) => {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    // Here you can implement search functionality
   };
   
   const isActive = (path: string) => router.pathname === path;
@@ -179,24 +178,30 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </button>
           
           <div className="flex flex-1 justify-between items-center px-4 sm:px-6 lg:px-8">
-            <form className="flex w-full max-w-lg" onSubmit={(e) => e.preventDefault()}>
-              <label htmlFor="search" className="sr-only">Search</label>
-              <div className="relative flex-1">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                  <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+            <div className="flex items-center space-x-4">
+              {/* Brand Selector */}
+              <BrandSelector />
+              
+              {/* Search Form */}
+              <form className="flex w-full max-w-lg" onSubmit={(e) => e.preventDefault()}>
+                <label htmlFor="search" className="sr-only">Search</label>
+                <div className="relative flex-1">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                    <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                  </div>
+                  <input
+                    type="search"
+                    id="search"
+                    name="search"
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    className="block w-full rounded-lg border-0 bg-gray-50 py-2.5 pl-11 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-green-600 hover:bg-white focus:bg-white transition-colors duration-150 sm:text-sm sm:leading-6"
+                    placeholder="Search anything..."
+                    autoComplete="off"
+                  />
                 </div>
-                <input
-                  type="search"
-                  id="search"
-                  name="search"
-                  value={searchQuery}
-                  onChange={handleSearch}
-                  className="block w-full rounded-lg border-0 bg-gray-50 py-2.5 pl-11 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-green-600 hover:bg-white focus:bg-white transition-colors duration-150 sm:text-sm sm:leading-6"
-                  placeholder="Search anything..."
-                  autoComplete="off"
-                />
-              </div>
-            </form>
+              </form>
+            </div>
             
             <div className="ml-4 flex items-center space-x-4">
               {/* Last updated indicator */}
@@ -272,3 +277,5 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </div>
   );
 };
+
+export default Layout;
