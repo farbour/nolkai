@@ -3,7 +3,7 @@ import { BrandInfo } from '@/types/brand';
 import { PerplexityProvider } from '../llm/perplexity';
 import { scrapeSocialMedia } from './socialMediaScraper';
 
-export type { BrandInfo };
+export { BrandInfo };
 
 export interface CompetitorResponse {
   name: string;
@@ -292,14 +292,18 @@ Important: Return ONLY the JSON object. No other text, no markdown, no explanati
     const prompt = `You are a JSON generator. Your task is to provide additional market context and insights about "${brandName}". Focus on recent developments, market trends, and industry position. You must return ONLY a valid JSON object with no additional text, markdown, or explanations. The response must exactly match this format:
 
 {
-  "marketContext": "detailed market analysis and context (2-3 paragraphs)"
+  "marketContext": "Provide a detailed market analysis here, focusing on industry trends, market size, growth potential, and competitive landscape. Include specific insights about market dynamics, consumer behavior shifts, and future outlook. Format as a cohesive 2-3 paragraph analysis without line breaks or special characters."
 }
 
-Important: Return ONLY the JSON object. No other text, no markdown, no explanations.`;
+Important: 
+- Return ONLY the JSON object. No other text, no markdown, no explanations.
+- The marketContext value must be a single string with regular text only
+- Do not include line breaks, quotes, or special characters in the marketContext value
+- Keep the analysis professional and data-focused`;
 
     const response = await this.llm.complete(prompt, {
       model: 'sonar',
-      temperature: 0.7,
+      temperature: 0.3, // Lower temperature for more consistent formatting
       signal
     });
 
@@ -307,7 +311,22 @@ Important: Return ONLY the JSON object. No other text, no markdown, no explanati
       const cleanedResponse = this.cleanResponse(response.text);
       console.log('Cleaned response:', cleanedResponse);
       const result = JSON.parse(cleanedResponse);
-      return result.marketContext;
+      
+      if (!result.marketContext || typeof result.marketContext !== 'string') {
+        throw new Error('Invalid market context format');
+      }
+
+      // Clean the market context string
+      const cleanedContext = result.marketContext
+        .replace(/[\r\n]+/g, ' ') // Remove line breaks
+        .replace(/\s+/g, ' ') // Normalize spaces
+        .trim();
+
+      if (!cleanedContext) {
+        throw new Error('Empty market context');
+      }
+
+      return cleanedContext;
     } catch (error) {
       console.error('Raw response:', response.text);
       console.error('Cleaned response:', this.cleanResponse(response.text));
