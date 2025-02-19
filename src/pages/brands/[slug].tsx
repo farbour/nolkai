@@ -1,3 +1,4 @@
+// file path: src/pages/brands/[slug].tsx
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { AnalysisProgress } from '@/components/brands/AnalysisProgress';
@@ -12,9 +13,12 @@ import { useState } from 'react';
 export default function BrandDetail() {
   const router = useRouter();
   const { slug } = router.query;
-  const { brandsInfo, analyzeBrand, cancelAnalysis } = useBrand();
+  const { brandsInfo, analyzeBrand, cancelAnalysis, isAnalyzing } = useBrand();
   const [activeTab, setActiveTab] = useState<BrandTab>('overview');
-  const [analysisProgress, setAnalysisProgress] = useState<ProgressType | null>(null);
+  const [analysisProgress, setAnalysisProgress] = useState<ProgressType>({
+    currentStep: 'presence',
+    completedSteps: []
+  });
 
   const brand = Object.values(brandsInfo).find(b => b.slug === slug);
 
@@ -36,6 +40,11 @@ export default function BrandDetail() {
 
   const handleAnalyze = async () => {
     try {
+      // Initialize progress
+      setAnalysisProgress({
+        currentStep: 'presence',
+        completedSteps: []
+      });
       await analyzeBrand(brand.name, setAnalysisProgress);
     } catch (error) {
       console.error('Failed to analyze brand:', error);
@@ -54,15 +63,15 @@ export default function BrandDetail() {
         <div className="flex items-center space-x-4">
           <Button
             onClick={handleAnalyze}
-            disabled={brand.isAnalyzing}
+            disabled={isAnalyzing(brand.name)}
             className="bg-blue-600 hover:bg-blue-700"
           >
-            {brand.isAnalyzing ? 'Analyzing...' : 'Analyze Brand'}
+            {isAnalyzing(brand.name) ? 'Analyzing...' : 'Analyze Brand'}
           </Button>
         </div>
       </div>
 
-      {brand.isAnalyzing && analysisProgress && (
+      {isAnalyzing(brand.name) && (
         <div className="mb-8">
           <AnalysisProgress
             progress={analysisProgress}

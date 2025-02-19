@@ -1,93 +1,93 @@
 {
   "website": "https://ergonofis.com/en-us",
   "socials": {
-    "instagram": null,
-    "facebook": null,
-    "twitter": null,
-    "linkedin": null,
-    "tiktok": null,
+    "instagram": "https://instagram.com/ergonofis",
+    "facebook": "https://facebook.com/ergonofis",
+    "twitter": "https://twitter.com/ergonofis",
+    "linkedin": "https://linkedin.com/company/company",
+    "tiktok": "https://tiktok.com/@ergonofis",
     "youtube": null,
     "pinterest": null
   },
   "positioning": {
-    "description": "Ergonofis is a Canadian brand dedicated to redefining the workspace by combining aesthetics, ergonomics, and sustainability. Founded in 2015 by Samuel Finn and Kimberley Pontbriand, the company aims to improve health and productivity through its high-quality, eco-friendly office furniture. Ergonofis products are designed and built in Quebec, Canada, using locally sourced materials, reflecting a commitment to environmental responsibility and community support.\n\nMarket Context: Ergonofis is a notable player in the ergonomic furniture market, particularly known for its high-quality standing desks like the Sway and Alive models. These desks are recognized for their innovative features such as seamless height adjustment via touchscreen and customizable settings for multiple users. This focus on ergonomics aligns with broader market trends emphasizing health and productivity in workspaces. As remote and hybrid work models continue to grow, companies like Ergonofis are well-positioned to meet the increasing demand for ergonomic solutions that enhance both comfort and efficiency. The use of sustainable materials and ecological finishes in Ergonofis products also appeals to consumers who prioritize environmental responsibility. In terms of industry position, Ergonofis competes with other ergonomic furniture brands by offering unique design aesthetics and advanced technology integration, making it a preferred choice for those seeking both form and function in their workspace solutions.",
-    "targetMarket": "Professionals and businesses seeking to enhance their workspaces with ergonomic, sustainable, and stylish furniture solutions. This includes individuals setting up home offices and companies looking to improve employee health and productivity.",
+    "description": "Ergonofis is a Canadian brand dedicated to redefining the workspace by combining aesthetics, ergonomics, and sustainability. Founded in 2015 by Samuel Finn and Kimberley Pontbriand, the company aims to improve health and productivity through its high-quality, eco-friendly office furniture. Ergonofis products are crafted with care, using locally sourced materials, and are designed to last, reducing waste and environmental impact.\n\nMarket Context: Ergonofis is a prominent player in the ergonomic furniture market, particularly known for its high-quality standing desks like the Sway and Alive models. These desks are celebrated for their seamless height adjustment features, customizable settings, and sustainable materials, aligning with current trends that emphasize both functionality and environmental responsibility. As of recent developments, Ergonofis has upgraded its standing desks with innovative touchscreen controls, allowing users to adjust desk heights with intuitive gestures, and offering personalized settings for multiple users. This focus on user experience and sustainability positions Ergonofis well in a market where consumers increasingly prioritize comfort, health, and eco-friendliness in their workspace solutions. The company's commitment to craftsmanship, using sustainably sourced materials from North American forests, further enhances its appeal to environmentally conscious consumers. In the broader industry context, Ergonofis competes with other ergonomic furniture brands by offering unique design aesthetics combined with advanced technology features, catering to the evolving needs of hybrid work environments where flexibility and customization are key.",
+    "targetMarket": "Professionals and businesses seeking ergonomic, sustainable, and stylish office solutions. This includes individuals setting up home offices and companies looking to enhance employee comfort and productivity.",
     "uniqueSellingPoints": [
-      "Ergonofis offers handcrafted, adjustable desks made from premium materials, including sustainable wood, ensuring both durability and aesthetic appeal.",
-      "The company prioritizes environmental sustainability, using eco-responsible materials and supporting local artisans, which appeals to environmentally conscious consumers.",
+      "Ergonofis offers handcrafted, adjustable desks made from premium materials, such as solid Canadian wood, ensuring both durability and aesthetic appeal.",
+      "The company prioritizes sustainability, using eco-responsible materials and supporting local artisans, which appeals to environmentally conscious consumers.",
       "Ergonofis products are designed to improve health and productivity, featuring ergonomic designs that reduce back and neck pain, improve posture, and boost mood and focus."
     ],
-    "pricePoint": "Ergonofis positions itself in the premium market segment, with products like the Sway ergonomic desk available from $1,845 CAD. This pricing reflects the high-quality materials, craftsmanship, and eco-friendly practices that set Ergonofis apart from more budget-friendly options."
+    "pricePoint": "Ergonofis positions itself in the premium market, with products like the Sway desk available from $1,845 CAD, reflecting a focus on high-quality materials and craftsmanship."
   },
   "competitors": [
     {
       "name": "Flexispot",
       "description": "Flexispot is a well-known brand offering high-quality standing desks with advanced features like integrated wireless charging and robust lifting capacities.",
       "strengths": [
-        "High-quality build with durable materials",
-        "Integrated wireless Qi charger for convenience",
-        "Strong lifting capacity suitable for heavy setups"
+        "High-quality materials and construction",
+        "Integrated wireless Qi charger in some models",
+        "Robust lifting capacity suitable for heavy setups"
       ],
       "weaknesses": [
         "Not the cheapest option available",
         "Limited built-in storage options",
-        "May require additional cable management solutions"
+        "Some models lack professional cable management solutions"
       ]
     },
     {
       "name": "iMovR",
-      "description": "iMovR is an innovation leader in premium standing desks and ergonomic accessories, known for its customizable and high-quality products.",
+      "description": "iMovR is an innovation leader in premium-quality, American-made active office workstations, offering a wide range of standing desks and ergonomic accessories.",
       "strengths": [
-        "Customizable and made-to-order desks",
-        "Wide range of ergonomic accessories available",
-        "High-quality, American-made products"
+        "Premium quality and durability",
+        "Wide range of customizable options",
+        "Innovative designs and features"
       ],
       "weaknesses": [
         "Generally more expensive than competitors",
-        "May require longer lead times due to customization",
-        "Not as widely available as other brands"
-      ]
-    },
-    {
-      "name": "Uplift Desk",
-      "description": "Uplift Desk offers highly stable and customizable standing desks with a focus on durability and customer satisfaction.",
-      "strengths": [
-        "High lateral stability for secure use",
-        "Customizable options to fit various workspaces",
-        "Strong customer support and warranty"
-      ],
-      "weaknesses": [
-        "Pricing can be higher than some competitors",
-        "Assembly may require more time and effort",
-        "Not as many entry-level options available"
+        "May require more assembly or customization",
+        "Limited availability of certain models"
       ]
     },
     {
       "name": "Fully",
-      "description": "Fully offers ergonomic standing desks like the Jarvis model, known for its affordability and eco-friendly materials.",
+      "description": "Fully offers ergonomic standing desks like the Jarvis Bamboo, known for affordability and impressive weight capacity.",
       "strengths": [
-        "Affordable pricing with good quality",
-        "Eco-friendly materials used in construction",
-        "Ergonomic design for comfort"
+        "Affordable pricing without sacrificing quality",
+        "Ergonomic design suitable for various workspaces",
+        "High weight capacity for multiple monitors"
       ],
       "weaknesses": [
-        "May not have as many advanced features as competitors",
-        "Customer support can vary",
-        "Not as many customization options"
+        "May lack advanced features compared to premium brands",
+        "Assembly can be challenging for some users",
+        "Limited customization options"
+      ]
+    },
+    {
+      "name": "Uplift",
+      "description": "Uplift offers highly stable standing desks with premium electronics, known for their lateral stability and durability.",
+      "strengths": [
+        "Excellent lateral stability and durability",
+        "Premium electronics for smooth operation",
+        "Wide range of customization options"
+      ],
+      "weaknesses": [
+        "Generally priced higher than entry-level options",
+        "Assembly can be complex for some users",
+        "Limited availability of certain accessories"
       ]
     }
   ],
   "reviews": {
-    "overallSentiment": "Generally positive, with customers appreciating the premium quality, unique materials, and innovative features of Ergonofis products. However, some users noted high costs and limited customization options.",
+    "overallSentiment": "Generally positive, with customers appreciating the premium quality, unique materials, and innovative features of Ergonofis products. However, some users noted limitations in customization options and minor design quirks.",
     "averageRating": 4.3,
     "commonPraises": [
       "Premium quality materials and craftsmanship",
       "Innovative features like touch OLED displays and collision protection",
-      "Aesthetic appeal and unique table top options"
+      "Aesthetic appeal with unique wooden tops and sleek designs"
     ],
     "commonComplaints": [
       "High cost compared to other standing desks",
-      "Limited size and customization options",
+      "Limited customization options for size and color",
       "Some users found the controller interface non-intuitive"
     ],
     "sources": [
@@ -96,5 +96,5 @@
       "WorkWhileWalking"
     ]
   },
-  "lastUpdated": "2025-02-19T14:51:32.508Z"
+  "lastUpdated": "2025-02-19T15:02:17.777Z"
 }
