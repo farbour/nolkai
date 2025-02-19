@@ -102,9 +102,9 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const loadSavedAnalysis = async (brandName: string): Promise<boolean> => {
+  const loadSavedAnalysis = async (brandName: string, signal?: AbortSignal): Promise<boolean> => {
     try {
-      const savedData = await loadBrandAnalysis(brandName);
+      const savedData = await loadBrandAnalysis(brandName, signal);
       if (savedData) {
         setBrandsInfo(prev => ({
           ...prev,
@@ -123,8 +123,8 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const hasAnalysis = async (brandName: string): Promise<boolean> => {
-    return hasExistingAnalysis(brandName);
+  const hasAnalysis = async (brandName: string, signal?: AbortSignal): Promise<boolean> => {
+    return hasExistingAnalysis(brandName, signal);
   };
 
   const analyzeBrand = async (brandName: string, onProgress?: (progress: AnalysisProgress) => void) => {

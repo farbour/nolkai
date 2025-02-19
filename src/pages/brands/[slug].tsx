@@ -24,15 +24,17 @@ export default function BrandDetail() {
 
   const brand = Object.values(brandsInfo).find(b => b.slug === slug);
 
-  const checkExistingAnalysis = useCallback(async (isMounted: () => boolean) => {
-    if (!brand) return;
-    
+  const checkExistingAnalysis = useCallback(async (
+    brandName: string,
+    isMounted: () => boolean,
+    signal: AbortSignal
+  ) => {
     try {
-      const exists = await hasAnalysis(brand.name);
+      const exists = await hasAnalysis(brandName, signal);
       if (isMounted()) {
         setHasExistingAnalysis(exists);
         if (exists) {
-          await loadSavedAnalysis(brand.name);
+          await loadSavedAnalysis(brandName, signal);
         }
       }
     } catch (error) {
@@ -42,21 +44,38 @@ export default function BrandDetail() {
         setIsLoadingAnalysis(false);
       }
     }
-  }, [brand?.name, hasAnalysis, loadSavedAnalysis]);
+  }, [hasAnalysis, loadSavedAnalysis]);
 
   useEffect(() => {
     let mounted = true;
     const isMounted = () => mounted;
+    let abortController: AbortController | null = null;
 
-    if (brand) {
+    const checkAnalysis = async () => {
+      if (!brand?.name) return;
+      
       setIsLoadingAnalysis(true);
-      checkExistingAnalysis(isMounted).catch(console.error);
-    }
+      abortController = new AbortController();
+      
+      try {
+        await checkExistingAnalysis(brand.name, isMounted, abortController.signal);
+      } catch (error) {
+        console.error('Error in analysis check:', error);
+        if (isMounted()) {
+          setIsLoadingAnalysis(false);
+        }
+      }
+    };
+
+    checkAnalysis();
 
     return () => {
       mounted = false;
+      if (abortController) {
+        abortController.abort();
+      }
     };
-  }, [brand, checkExistingAnalysis]);
+  }, [brand?.name, checkExistingAnalysis]);
 
   if (!brand) {
     return (

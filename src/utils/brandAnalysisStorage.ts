@@ -16,9 +16,12 @@ export const saveBrandAnalysis = async (brandName: string, data: BrandInfo): Pro
   }
 };
 
-export const loadBrandAnalysis = async (brandName: string): Promise<BrandInfo | null> => {
+export const loadBrandAnalysis = async (brandName: string, signal?: AbortSignal): Promise<BrandInfo | null> => {
   try {
-    const response = await fetch(`/api/brand-analysis/storage?brand=${encodeURIComponent(brandName)}`);
+    const response = await fetch(
+      `/api/brand-analysis/storage?brand=${encodeURIComponent(brandName)}`,
+      { signal }
+    );
     
     if (response.status === 404) {
       return null;
@@ -31,31 +34,44 @@ export const loadBrandAnalysis = async (brandName: string): Promise<BrandInfo | 
 
     return response.json();
   } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      // Rethrow abort errors
+      throw error;
+    }
     console.error('Error loading brand analysis:', error);
     return null;
   }
 };
 
-export const hasExistingAnalysis = async (brandName: string): Promise<boolean> => {
+export const hasExistingAnalysis = async (brandName: string, signal?: AbortSignal): Promise<boolean> => {
   try {
-    const response = await fetch(`/api/brand-analysis/storage?brand=${encodeURIComponent(brandName)}`, {
-      method: 'HEAD',
-    });
+    const response = await fetch(
+      `/api/brand-analysis/storage?brand=${encodeURIComponent(brandName)}`,
+      { method: 'HEAD', signal }
+    );
     return response.status === 200;
   } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      // Rethrow abort errors
+      throw error;
+    }
     console.error('Error checking brand analysis:', error);
     return false;
   }
 };
 
-export const listSavedAnalyses = async (): Promise<string[]> => {
+export const listSavedAnalyses = async (signal?: AbortSignal): Promise<string[]> => {
   try {
-    const response = await fetch('/api/brand-analysis/storage/list');
+    const response = await fetch('/api/brand-analysis/storage/list', { signal });
     if (!response.ok) {
       throw new Error('Failed to list saved analyses');
     }
     return response.json();
   } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      // Rethrow abort errors
+      throw error;
+    }
     console.error('Error listing saved analyses:', error);
     return [];
   }
