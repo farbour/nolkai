@@ -1,6 +1,8 @@
+// file path: src/context/BrandContext.tsx
 import { Brand, BrandInfo } from '@/types/brand';
 import React, { createContext, useContext, useState } from 'react';
 import { brands, defaultBrand } from '../config/brands';
+import { hasExistingAnalysis, loadBrandAnalysis } from '@/utils/brandAnalysisStorage';
 
 import { AnalysisProgress } from '@/lib/services/brandAnalysis';
 
@@ -17,6 +19,8 @@ interface BrandContextType {
   isAnalyzing: (brandName: string) => boolean;
   getBrandInfo: (brandName: string) => BrandInfo | undefined;
   getBrandError: (brandName: string) => string | undefined;
+  loadSavedAnalysis: (brandName: string) => Promise<boolean>;
+  hasAnalysis: (brandName: string) => Promise<boolean>;
 }
 
 const BrandContext = createContext<BrandContextType | undefined>(undefined);
@@ -96,6 +100,31 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
       abortController.abort();
       setAbortController(null);
     }
+  };
+
+  const loadSavedAnalysis = async (brandName: string): Promise<boolean> => {
+    try {
+      const savedData = await loadBrandAnalysis(brandName);
+      if (savedData) {
+        setBrandsInfo(prev => ({
+          ...prev,
+          [brandName]: {
+            ...prev[brandName],
+            info: savedData,
+            updatedAt: new Date().toISOString()
+          }
+        }));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error loading saved analysis:', error);
+      return false;
+    }
+  };
+
+  const hasAnalysis = async (brandName: string): Promise<boolean> => {
+    return hasExistingAnalysis(brandName);
   };
 
   const analyzeBrand = async (brandName: string, onProgress?: (progress: AnalysisProgress) => void) => {
@@ -212,6 +241,8 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
     isAnalyzing,
     getBrandInfo,
     getBrandError,
+    loadSavedAnalysis,
+    hasAnalysis,
   };
 
   return (

@@ -1,5 +1,6 @@
 // file path: src/pages/brands/[slug].tsx
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useEffect, useState } from 'react';
 
 import { AnalysisProgress } from '@/components/brands/AnalysisProgress';
 import { BrandTab } from '@/types/brand';
@@ -8,19 +9,34 @@ import Link from 'next/link';
 import type { AnalysisProgress as ProgressType } from '@/lib/services/brandAnalysis';
 import { useBrand } from '@/context/BrandContext';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
 
 export default function BrandDetail() {
   const router = useRouter();
   const { slug } = router.query;
-  const { brandsInfo, analyzeBrand, cancelAnalysis, isAnalyzing } = useBrand();
+  const { brandsInfo, analyzeBrand, cancelAnalysis, isAnalyzing, loadSavedAnalysis, hasAnalysis } = useBrand();
   const [activeTab, setActiveTab] = useState<BrandTab>('overview');
   const [analysisProgress, setAnalysisProgress] = useState<ProgressType>({
     currentStep: 'presence',
     completedSteps: []
   });
+  const [hasExistingAnalysis, setHasExistingAnalysis] = useState(false);
+  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(true);
 
   const brand = Object.values(brandsInfo).find(b => b.slug === slug);
+
+  useEffect(() => {
+    if (brand) {
+      const checkExistingAnalysis = async () => {
+        const exists = await hasAnalysis(brand.name);
+        setHasExistingAnalysis(exists);
+        if (exists) {
+          await loadSavedAnalysis(brand.name);
+        }
+        setIsLoadingAnalysis(false);
+      };
+      checkExistingAnalysis();
+    }
+  }, [brand, hasAnalysis, loadSavedAnalysis]);
 
   if (!brand) {
     return (
@@ -61,6 +77,11 @@ export default function BrandDetail() {
           <h1 className="text-3xl font-bold text-gray-900">{brand.name}</h1>
         </div>
         <div className="flex items-center space-x-4">
+          {hasExistingAnalysis && !isAnalyzing(brand.name) && (
+            <p className="text-sm text-gray-600">
+              Previous analysis data found. Running analysis will update and merge with existing data.
+            </p>
+          )}
           <Button
             onClick={handleAnalyze}
             disabled={isAnalyzing(brand.name)}
@@ -80,7 +101,12 @@ export default function BrandDetail() {
         </div>
       )}
 
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as BrandTab)}>
+      {isLoadingAnalysis ? (
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      ) : (
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as BrandTab)}>
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="positioning">Positioning</TabsTrigger>
@@ -304,6 +330,7 @@ export default function BrandDetail() {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+     )}
+   </div>
+ );
 }
