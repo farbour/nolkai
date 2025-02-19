@@ -24,19 +24,39 @@ export default function BrandDetail() {
 
   const brand = Object.values(brandsInfo).find(b => b.slug === slug);
 
-  useEffect(() => {
-    if (brand) {
-      const checkExistingAnalysis = async () => {
-        const exists = await hasAnalysis(brand.name);
+  const checkExistingAnalysis = useCallback(async (isMounted: () => boolean) => {
+    if (!brand) return;
+    
+    try {
+      const exists = await hasAnalysis(brand.name);
+      if (isMounted()) {
         setHasExistingAnalysis(exists);
         if (exists) {
           await loadSavedAnalysis(brand.name);
         }
+      }
+    } catch (error) {
+      console.error('Error checking analysis:', error);
+    } finally {
+      if (isMounted()) {
         setIsLoadingAnalysis(false);
-      };
-      checkExistingAnalysis();
+      }
     }
-  }, [brand, hasAnalysis, loadSavedAnalysis]);
+  }, [brand?.name, hasAnalysis, loadSavedAnalysis]);
+
+  useEffect(() => {
+    let mounted = true;
+    const isMounted = () => mounted;
+
+    if (brand) {
+      setIsLoadingAnalysis(true);
+      checkExistingAnalysis(isMounted).catch(console.error);
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [brand, checkExistingAnalysis]);
 
   if (!brand) {
     return (
