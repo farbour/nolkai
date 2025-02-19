@@ -1,5 +1,4 @@
 // file path: src/components/analysis/ComparisonBrandSelector.tsx
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { Listbox, Transition } from '@headlessui/react';
 
 import { Fragment } from 'react';
@@ -27,10 +26,7 @@ export function ComparisonBrandSelector({
             {selectedBrand || 'Select comparison brand'}
           </span>
           <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-            <ChevronUpDownIcon
-              className="h-5 w-5 text-gray-400"
-              aria-hidden="true"
-            />
+            <span className="text-gray-400 text-xs">▼</span>
           </span>
         </Listbox.Button>
         <Transition
@@ -65,7 +61,7 @@ export function ComparisonBrandSelector({
                           active ? 'text-green-600' : 'text-green-600'
                         }`}
                       >
-                        <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                        <span className="text-sm">✓</span>
                       </span>
                     ) : null}
                   </>

@@ -1,0 +1,86 @@
+{
+  "website": "https://oppositewall.com",
+  "socials": {
+    "instagram": null,
+    "facebook": null,
+    "twitter": null,
+    "linkedin": null,
+    "tiktok": null,
+    "youtube": null,
+    "pinterest": null
+  },
+  "positioning": {
+    "description": "Opposite Wall is a home decor and design studio based in Montreal, Canada, offering a wide range of artistic prints designed to reflect individual personalities. The brand emphasizes creativity and sustainability, producing unique, on-demand artworks that cater to diverse styles, from botanical to abstract and motivational. Opposite Wall aims to inspire daily life by providing a canvas for self-expression through home decor.\n\nMarket Context: The term 'Opposite Wall' does not directly correspond to a specific market or industry in recent developments. However, related concepts like 'Tent Wall' and 'Glass Curtain Wall' offer insights into the broader construction and architectural materials market. The Tent Wall market is expected to grow significantly due to its applications in traditional, military, recreational, and emergency sectors, with materials like nylon, polyurethane, and polyester being prominent. On the other hand, the Glass Curtain Wall market, valued at USD 64.62 billion in 2024, is projected to grow at a CAGR of 7.2% from 2025 to 2032, driven by demand in commercial and residential construction. These markets reflect trends in construction materials and architectural design, with a focus on durability and aesthetic appeal. As for 'Opposite Wall,' without specific context, it might relate to architectural features or design elements rather than a distinct market segment.",
+    "targetMarket": "Opposite Wall targets individuals seeking unique, high-quality home decor that reflects their personal style. This includes young adults and homeowners who value Scandinavian design and minimalist aesthetics, looking for affordable yet authentic pieces to enhance their living spaces.",
+    "uniqueSellingPoints": [
+      "Sustainable production practices, including on-demand printing and eco-friendly materials like FSC-certified frames and SFI-certified paper.",
+      "Original, in-house designs that cater to a wide array of styles, ensuring a personalized touch for each customer.",
+      "Partnership with environmental initiatives such as One Tree Planted to offset paper and wood usage."
+    ],
+    "pricePoint": "Competitive pricing due to a direct-to-consumer model, which eliminates middlemen and keeps costs affordable for customers."
+  },
+  "competitors": [
+    {
+      "name": "Desenio",
+      "description": "Desenio is a leading online retailer specializing in minimalist wall art, offering a wide range of posters, prints, and frames. It is known for its modern and stylish designs.",
+      "strengths": [
+        "Wide selection of minimalist designs",
+        "Strong online presence with high traffic",
+        "Competitive pricing"
+      ],
+      "weaknesses": [
+        "Limited physical store presence",
+        "Dependence on online sales",
+        "High competition in the market"
+      ]
+    },
+    {
+      "name": "Posterstore",
+      "description": "Posterstore is an online platform that sells posters, frames, and other wall art products. It offers a variety of designs and styles to cater to different tastes.",
+      "strengths": [
+        "Diverse product offerings",
+        "User-friendly website",
+        "Affordable options"
+      ],
+      "weaknesses": [
+        "Lower traffic compared to larger competitors",
+        "Limited brand recognition",
+        "Quality consistency issues"
+      ]
+    },
+    {
+      "name": "The Poster Club",
+      "description": "The Poster Club is a retailer that focuses on providing high-quality posters and wall art. It is known for its curated selection of designs and collaborations with artists.",
+      "strengths": [
+        "Unique and curated designs",
+        "Strong brand identity",
+        "Collaborations with artists"
+      ],
+      "weaknesses": [
+        "Niche market focus may limit broader appeal",
+        "Higher prices compared to mass-market competitors",
+        "Dependence on artist collaborations"
+      ]
+    }
+  ],
+  "reviews": {
+    "overallSentiment": "Customers generally express satisfaction with Opposite Wall's products, highlighting their unique designs, sustainability, and affordability. The overall sentiment is overwhelmingly positive, with customers appreciating the company's commitment to environmental responsibility and aesthetic appeal.",
+    "averageRating": 4.75,
+    "commonPraises": [
+      "Unique and modern designs that reflect personal style",
+      "Sustainable practices, including the use of recycled materials and environmental donations",
+      "Affordable pricing without compromising on quality"
+    ],
+    "commonComplaints": [
+      "No significant complaints were noted in the available reviews",
+      "Some customers might find the product range limited compared to larger retailers",
+      "International shipping costs could be a concern for some buyers"
+    ],
+    "sources": [
+      "Opposite Wall Reviews - Read Customer Reviews of Oppositewall",
+      "Opposite Wall Reviews | www.oppositewall.com - REVIEWS.io",
+      "Opposite Wall - Posters, Frames & Wallpapers | Minimalist Wall Art"
+    ]
+  },
+  "lastUpdated": "2025-02-19T14:50:54.840Z"
+}

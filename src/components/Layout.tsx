@@ -2,6 +2,7 @@ import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
   BellIcon,
+  BuildingStorefrontIcon,
   ChartBarIcon,
   Cog6ToothIcon,
   DocumentChartBarIcon,
@@ -30,6 +31,7 @@ const navigation = [
   { name: 'Analysis', href: '/analysis', icon: PresentationChartBarIcon },
   { name: 'Report', href: '/report', icon: DocumentChartBarIcon },
   { name: 'Presentations', href: '/presentations', icon: PresentationChartBarIcon },
+  { name: 'Brands', href: '/brands', icon: BuildingStorefrontIcon },
 ];
 
 const userNavigation = [
