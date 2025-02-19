@@ -1,6 +1,6 @@
 // file path: src/pages/brands/[slug].tsx
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { AnalysisProgress } from '@/components/brands/AnalysisProgress';
 import { BrandTab } from '@/types/brand';
