@@ -1,6 +1,7 @@
 // file path: src/pages/analysis.tsx
 import { useEffect, useState } from 'react';
 
+import { AIAnalysis } from '../components/analysis/AIAnalysis';
 import { BrandComparison } from '../components/analysis/BrandComparison';
 import { BrandDataItem } from '../config/brands';
 import { BrandSelector } from '../components/BrandSelector';
@@ -237,6 +238,13 @@ export default function Analysis() {
           />
         </div>
       </div>
+
+      {/* AI Analysis */}
+      <AIAnalysis
+        selectedBrand={selectedBrand}
+        comparisonBrand={comparisonBrand}
+        data={data}
+      />
 
       {/* Performance Metrics */}
       <div className="space-y-2">
