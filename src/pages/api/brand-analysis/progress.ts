@@ -9,11 +9,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const encodedBrand = req.query.brand;
-  if (!encodedBrand || typeof encodedBrand !== 'string') {
+  const { brand: rawBrand } = req.query;
+  if (!rawBrand || typeof rawBrand !== 'string') {
     return res.status(400).json({ error: 'Brand name is required' });
   }
-  const brand = sanitizeBrandName(decodeURIComponent(encodedBrand));
+  const sanitizedBrand = sanitizeBrandName(rawBrand);
 
   // Set up SSE headers
   res.setHeader('Content-Type', 'text/event-stream');
@@ -21,7 +21,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Connection', 'keep-alive');
 
   // Send initial progress
-  const initialProgress = getProgress(brand) || {
+  const initialProgress = getProgress(sanitizedBrand) || {
     currentStep: 'presence',
     completedSteps: []
   };
@@ -29,7 +29,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   // Set up interval to check for progress updates
   const interval = setInterval(() => {
-    const progress = getProgress(brand);
+    const progress = getProgress(sanitizedBrand);
     if (progress) {
       res.write(`data: ${JSON.stringify(progress)}\n\n`);
       
@@ -49,7 +49,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const cleanup = () => {
     clearInterval(interval);
     clearTimeout(timeout);
-    deleteProgress(brand);
+    deleteProgress(sanitizedBrand);
     res.end();
   };
 

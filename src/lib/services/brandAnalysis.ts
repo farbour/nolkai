@@ -1,9 +1,7 @@
 // file path: src/lib/services/brandAnalysis.ts
-import { BrandInfo } from '@/types/brand';
+import type { BrandInfo } from '@/types/brand';
 import { PerplexityProvider } from '../llm/perplexity';
 import { scrapeSocialMedia } from './socialMediaScraper';
-
-export { BrandInfo };
 
 export interface CompetitorResponse {
   name: string;
@@ -123,7 +121,7 @@ Important:
 - Include only active, verified accounts when possible`;
 
     const response = await this.llm.complete(prompt, {
-      model: 'sonar',
+      model: process.env.NEXT_PUBLIC_PERPLEXITY_DEFAULT_MODEL || 'llama-3.1-sonar-huge-128k-online',
       temperature: 0.3,
       signal
     });
@@ -184,7 +182,7 @@ Important:
 Important: Return ONLY the JSON object. No other text, no markdown, no explanations.`;
 
     const response = await this.llm.complete(prompt, {
-      model: 'sonar',
+      model: process.env.NEXT_PUBLIC_PERPLEXITY_DEFAULT_MODEL || 'deepseek-r1-distill-llama-70b',
       temperature: 0.3,
       signal
     });
@@ -226,7 +224,7 @@ Important: Return ONLY the JSON object. No other text, no markdown, no explanati
 Important: Return ONLY the JSON object. No other text, no markdown, no explanations.`;
 
     const response = await this.llm.complete(prompt, {
-      model: 'sonar',
+      model: process.env.NEXT_PUBLIC_PERPLEXITY_DEFAULT_MODEL || 'deepseek-r1-distill-llama-70b',
       temperature: 0.3,
       signal
     });
@@ -271,7 +269,7 @@ Important: Return ONLY the JSON object. No other text, no markdown, no explanati
 Important: Return ONLY the JSON object. No other text, no markdown, no explanations.`;
 
     const response = await this.llm.complete(prompt, {
-      model: 'sonar',
+      model: process.env.NEXT_PUBLIC_PERPLEXITY_DEFAULT_MODEL || 'deepseek-r1-distill-llama-70b',
       temperature: 0.3,
       signal
     });
@@ -302,7 +300,7 @@ Important:
 - Keep the analysis professional and data-focused`;
 
     const response = await this.llm.complete(prompt, {
-      model: 'sonar',
+      model: process.env.NEXT_PUBLIC_PERPLEXITY_DEFAULT_MODEL || 'deepseek-r1-distill-llama-70b',
       temperature: 0.3, // Lower temperature for more consistent formatting
       signal
     });

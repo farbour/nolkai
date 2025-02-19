@@ -1,151 +1,122 @@
-// file path: src/pages/api/brand-analysis/storage.ts
-import { BrandCompetitor, BrandInfo } from '@/types/brand';
-import { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
+// file path: src/pages/api/brand-analysis/storage.ts
+import { BrandInfo } from '@/types/brand';
 import fs from 'fs';
 import path from 'path';
-import { sanitizeBrandName } from '@/utils/brandAnalysisStorage';
 
-const ANALYSIS_DIR = path.join(process.cwd(), 'public', 'brand-analysis');
+type ApiResponse = {
+  success: boolean;
+  data?: BrandInfo | string[];
+  error?: string;
+};
 
-// Ensure the analysis directory exists
-if (!fs.existsSync(ANALYSIS_DIR)) {
-  fs.mkdirSync(ANALYSIS_DIR, { recursive: true });
+// Ensure the brand-analysis directory exists
+const STORAGE_DIR = path.join(process.cwd(), 'public', 'brand-analysis');
+if (!fs.existsSync(STORAGE_DIR)) {
+  fs.mkdirSync(STORAGE_DIR, { recursive: true });
 }
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse<ApiResponse>
 ) {
-  const { method, query } = req;
-  const brandName = decodeURIComponent(query.brand as string);
-
-  if (!brandName) {
-    res.status(400).json({ error: 'Brand name is required' });
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
+  
+  // Handle preflight request
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
     return;
   }
 
-  const fileName = `${sanitizeBrandName(brandName)}.json`;
-  const filePath = path.join(ANALYSIS_DIR, fileName);
+  const { brand } = req.query;
 
-  // Set cache control headers
-  res.setHeader('Cache-Control', 'no-store, must-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-
-  switch (method) {
-    case 'GET':
-      try {
-        if (!fs.existsSync(filePath)) {
-          res.status(404).json({ error: 'Analysis not found' });
-          return;
-        }
-        const data = await fs.promises.readFile(filePath, 'utf-8');
-        const parsedData = JSON.parse(data);
-        
-        // Add last modified timestamp to response
-        res.setHeader('Last-Modified', new Date(parsedData.lastUpdated).toUTCString());
-        res.status(200).json(parsedData);
-        return;
-      } catch (error) {
-        console.error('Error reading analysis:', error);
-        res.status(500).json({ error: 'Failed to read analysis' });
-        return;
-      }
-
-    case 'POST':
-      try {
-        const newData: BrandInfo = req.body;
-        
-        // If file exists, merge data
-        let finalData = newData;
-        if (fs.existsSync(filePath)) {
-          const existingData = JSON.parse(await fs.promises.readFile(filePath, 'utf-8')) as BrandInfo;
-          finalData = {
-            ...existingData,
-            ...newData,
-            // Merge socials, keeping existing values if new ones are null/undefined
-            socials: {
-              ...existingData.socials,
-              ...Object.fromEntries(
-                Object.entries(newData.socials).filter(([, value]) => value != null)
-              ),
-            },
-            // Merge positioning data, concatenating arrays
-            positioning: {
-              ...existingData.positioning,
-              ...newData.positioning,
-              uniqueSellingPoints: [
-                ...new Set([
-                  ...(existingData.positioning?.uniqueSellingPoints || []),
-                  ...(newData.positioning?.uniqueSellingPoints || []),
-                ]),
-              ],
-            },
-            // Merge competitors, combining by name and updating data
-            competitors: [
-              ...newData.competitors.map(newComp => {
-                const existingComp = existingData.competitors?.find((e: BrandCompetitor) => e.name === newComp.name);
-                if (existingComp) {
-                  return {
-                    ...existingComp,
-                    ...newComp,
-                    strengths: [...new Set([...existingComp.strengths, ...newComp.strengths])],
-                    weaknesses: [...new Set([...existingComp.weaknesses, ...newComp.weaknesses])],
-                  };
-                }
-                return newComp;
-              }),
-              ...(existingData.competitors?.filter(
-                (e: BrandCompetitor) => !newData.competitors.some(n => n.name === e.name)
-              ) || []),
-            ],
-            // Merge reviews data, combining arrays and averaging ratings
-            reviews: {
-              ...existingData.reviews,
-              ...newData.reviews,
-              averageRating:
-                (existingData.reviews?.averageRating || 0 + newData.reviews?.averageRating || 0) / 2,
-              commonPraises: [
-                ...new Set([
-                  ...(existingData.reviews?.commonPraises || []),
-                  ...(newData.reviews?.commonPraises || []),
-                ]),
-              ],
-              commonComplaints: [
-                ...new Set([
-                  ...(existingData.reviews?.commonComplaints || []),
-                  ...(newData.reviews?.commonComplaints || []),
-                ]),
-              ],
-              sources: [
-                ...new Set([
-                  ...(existingData.reviews?.sources || []),
-                  ...(newData.reviews?.sources || []),
-                ]),
-              ],
-            },
-            lastUpdated: new Date().toISOString(),
-          };
-        }
-
-        await fs.promises.writeFile(filePath, JSON.stringify(finalData, null, 2), 'utf-8');
-        res.status(200).json(finalData);
-        return;
-      } catch (error) {
-        console.error('Error saving analysis:', error);
-        res.status(500).json({ error: 'Failed to save analysis' });
-        return;
-      }
-
-    case 'HEAD':
-      // Check if analysis exists
-      res.status(fs.existsSync(filePath) ? 200 : 404).end();
-      return;
-
-    default:
-      res.setHeader('Allow', ['GET', 'POST', 'HEAD']);
-      res.status(405).json({ error: `Method ${method} Not Allowed` });
-      return;
+  // List all saved analyses
+  if (req.method === 'GET' && req.url?.includes('/list')) {
+    try {
+      const files = fs.readdirSync(STORAGE_DIR);
+      const brands = files
+        .filter(file => file.endsWith('.json'))
+        .map(file => file.replace('.json', ''));
+      
+      return res.status(200).json({
+        success: true,
+        data: brands
+      });
+    } catch (error) {
+      console.error('Error listing analyses:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to list analyses'
+      });
+    }
   }
+
+  // Validate brand parameter
+  if (!brand || typeof brand !== 'string') {
+    return res.status(400).json({
+      success: false,
+      error: 'Brand parameter is required'
+    });
+  }
+
+  const filePath = path.join(STORAGE_DIR, `${brand}.json`);
+
+  if (req.method === 'GET') {
+    try {
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({
+          success: false,
+          error: 'Analysis not found'
+        });
+      }
+
+      const fileContent = fs.readFileSync(filePath, 'utf-8');
+      const data = JSON.parse(fileContent);
+
+      return res.status(200).json({
+        success: true,
+        data
+      });
+    } catch (error) {
+      console.error('Error loading analysis:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to load analysis'
+      });
+    }
+  }
+
+  if (req.method === 'POST') {
+    try {
+      const data = req.body;
+      
+      if (!data || typeof data !== 'object') {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid data format'
+        });
+      }
+
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+
+      return res.status(200).json({
+        success: true
+      });
+    } catch (error) {
+      console.error('Error saving analysis:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to save analysis'
+      });
+    }
+  }
+
+  return res.status(405).json({
+    success: false,
+    error: 'Method not allowed'
+  });
 }

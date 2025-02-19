@@ -11,6 +11,7 @@ export const saveBrandAnalysis = async (brandName: string, data: BrandInfo): Pro
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json, text/plain, */*'
     },
     body: JSON.stringify(data),
   });
@@ -29,6 +30,8 @@ export const loadBrandAnalysis = async (brandName: string, signal?: AbortSignal)
         method: 'GET',
         signal,
         headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, text/plain, */*',
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
         }
@@ -56,7 +59,15 @@ export const loadBrandAnalysis = async (brandName: string, signal?: AbortSignal)
 
 export const listSavedAnalyses = async (signal?: AbortSignal): Promise<string[]> => {
   try {
-    const response = await fetch('/api/brand-analysis/storage/list', { signal });
+    const response = await fetch('/api/brand-analysis/storage/list', {
+      signal,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json, text/plain, */*',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
     if (!response.ok) {
       throw new Error('Failed to list saved analyses');
     }

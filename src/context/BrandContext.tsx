@@ -168,12 +168,23 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
     cancelAnalysis();
 
     const sanitizedBrand = sanitizeBrandName(brandName);
-    const encodedBrand = encodeURIComponent(sanitizedBrand);
     const controller = new AbortController();
     setAbortController(controller);
 
-    const brand = brandsInfo[sanitizedBrand];
-    if (brand) {
+    let brand = brandsInfo[sanitizedBrand];
+    if (!brand) {
+      // Create the brand if it doesn't exist
+      brand = await createBrand({
+        name: sanitizedBrand,
+        slug: sanitizedBrand,
+        isAnalyzing: true
+      });
+      setBrandsInfo(prev => ({
+        ...prev,
+        [sanitizedBrand]: brand
+      }));
+    } else {
+      // Update existing brand
       const updatedBrand = await updateBrand(brand.id, {
         isAnalyzing: true,
         error: undefined,
@@ -186,78 +197,25 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const eventSource = new EventSource(`/api/brand-analysis/progress?brand=${encodedBrand}`);
+      console.log('Starting brand analysis for:', sanitizedBrand);
       
-      eventSource.onmessage = (event) => {
-        const progress: AnalysisProgress = JSON.parse(event.data);
-        onProgress?.(progress);
+      // Initialize progress
+      const initialProgress: AnalysisProgress = {
+        currentStep: 'presence',
+        completedSteps: []
       };
+      onProgress?.(initialProgress);
 
-      eventSource.onerror = () => {
-        eventSource.close();
-      };
+      // Create analysis service instance
+      const { BrandAnalysisService } = await import('@/lib/services/brandAnalysis');
+      const analysisService = new BrandAnalysisService(process.env.NEXT_PUBLIC_PERPLEXITY_API_KEY || '');
 
-      controller.signal.addEventListener('abort', () => {
-        eventSource.close();
-      });
-
-      const cleanup = () => {
-        eventSource.close();
-      };
-
-      try {
-        const response = await fetch('/api/brand-analysis', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ brandName: sanitizedBrand }),
-          signal: controller.signal
-        });
-
-        if (!response.ok) {
-          cleanup();
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to analyze brand');
-        }
-
-        const info: BrandInfo = await response.json();
-        if (brand) {
-          const updatedBrand = await updateBrand(brand.id, {
-            info,
-            isAnalyzing: false,
-          });
-
-          setBrandsInfo(prev => ({
-            ...prev,
-            [sanitizedBrand]: updatedBrand
-          }));
-        }
-
-        cleanup();
-      } catch (error) {
-        cleanup();
-        throw error;
-      }
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        if (brand) {
-          const updatedBrand = await updateBrand(brand.id, {
-            isAnalyzing: false,
-          });
-
-          setBrandsInfo(prev => ({
-            ...prev,
-            [sanitizedBrand]: updatedBrand
-          }));
-        }
-        return;
-      }
-
+      // Run analysis
+      const info = await analysisService.analyzeBrand(sanitizedBrand, onProgress, controller.signal);
       if (brand) {
         const updatedBrand = await updateBrand(brand.id, {
+          info,
           isAnalyzing: false,
-          error: error instanceof Error ? error.message : 'An error occurred during analysis',
         });
 
         setBrandsInfo(prev => ({
@@ -265,7 +223,60 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
           [sanitizedBrand]: updatedBrand
         }));
       }
-      throw error;
+
+      // Set final progress
+      onProgress?.({
+        currentStep: 'completed',
+        completedSteps: ['presence', 'positioning', 'competitors', 'reviews', 'market']
+      });
+      
+      return info;
+    } catch (error) {
+      console.error('Analysis error:', error);
+      
+      try {
+        let errorMessage = 'An error occurred during analysis';
+        
+        if (error instanceof Error) {
+          if (error.name === 'AbortError') {
+            errorMessage = 'Analysis was cancelled';
+          } else {
+            errorMessage = error.message;
+          }
+        }
+
+        let brandToUpdate = brand;
+        if (!brandToUpdate) {
+          // Create the brand if it doesn't exist
+          brandToUpdate = await createBrand({
+            name: sanitizedBrand,
+            slug: sanitizedBrand,
+            isAnalyzing: false,
+            error: errorMessage
+          });
+        } else {
+          // Update existing brand
+          brandToUpdate = await updateBrand(brandToUpdate.id, {
+            isAnalyzing: false,
+            error: errorMessage,
+          });
+        }
+
+        setBrandsInfo(prev => ({
+          ...prev,
+          [sanitizedBrand]: brandToUpdate
+        }));
+
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+      } catch (updateError) {
+        console.error('Error updating brand status:', updateError);
+      }
+      
+      if (!(error instanceof Error && error.name === 'AbortError')) {
+        throw error;
+      }
     } finally {
       setAbortController(null);
     }
