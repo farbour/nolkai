@@ -44,25 +44,38 @@ export function useBrandData(brandSlug: string | undefined) {
     const { signal } = abortControllerRef.current;
 
     const loadData = async () => {
+      // Don't start loading if component is unmounted
+      if (!mountedRef.current) return;
+
       try {
         setIsLoadingAnalysis(true);
         setError(null);
         
         const data = await loadSavedAnalysis(brandName, signal);
         
+        // Check mounted state before any state updates
         if (!mountedRef.current) return;
         
         setHasExistingAnalysis(!!data);
-        hasLoadedRef.current[brandName] = true;
+        // Only update loaded ref if component is still mounted
+        if (mountedRef.current && brandName) {
+          hasLoadedRef.current[brandName] = true;
+        }
       } catch (error) {
+        // Immediately return if component is unmounted
         if (!mountedRef.current) return;
         
-        // Only set error if it's not an abort error
-        if (error instanceof Error && error.name !== 'AbortError') {
+        // Handle abort errors silently
+        if (error instanceof Error) {
+          if (error.name === 'AbortError') {
+            console.debug('Brand data loading aborted');
+            return;
+          }
           setError(error);
           console.error('Error loading analysis:', error);
         }
       } finally {
+        // Final mounted check before state update
         if (mountedRef.current) {
           setIsLoadingAnalysis(false);
         }
@@ -72,13 +85,20 @@ export function useBrandData(brandSlug: string | undefined) {
     loadData();
 
     return () => {
-      // Only abort if controller exists and hasn't been aborted
-      if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
-        abortControllerRef.current.abort();
+      // Safely abort any ongoing requests
+      if (abortControllerRef.current?.signal && !abortControllerRef.current.signal.aborted) {
+        try {
+          abortControllerRef.current.abort('Component cleanup');
+        } catch (error) {
+          console.warn('Error during abort:', error);
+        }
       }
       
-      // Clean up the loaded state
-      if (brandName) {
+      // Clear the controller reference
+      abortControllerRef.current = null;
+      
+      // Clean up the loaded state if component is truly unmounting
+      if (mountedRef.current && brandName) {
         delete hasLoadedRef.current[brandName];
       }
     };

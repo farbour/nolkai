@@ -2,3 +2,6 @@ dont ever read these files:
 data.csv
 public/data.csv
 *.csv
+
+
+always hos on port 1000,w always kill the port 1000 before npm run dev
