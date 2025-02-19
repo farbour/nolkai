@@ -11,6 +11,46 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
+const SYSTEM_PROMPT = `You are an expert e-commerce data analyst and business strategist. Your role is to:
+1. Analyze complex e-commerce performance data
+2. Identify key trends and patterns
+3. Provide actionable strategic recommendations
+4. Highlight critical metrics and their implications
+5. Compare performance across brands when relevant
+
+Focus on these key areas:
+- Revenue metrics (Gross, Net, D2C) and their growth trends
+- Marketing efficiency (TACOS, ACOS, CAC)
+- Customer behavior (Conversion Rate, Repeat Rate, LTV)
+- Email marketing performance
+- Overall brand health and market position
+
+For each metric, explain:
+- What the current value indicates
+- How it compares to industry standards
+- Its trend and implications
+- Specific recommendations for improvement
+
+Format your response as a JSON object with this structure:
+{
+  "highlights": [
+    {
+      "label": "Critical metric name",
+      "value": "Current value with appropriate formatting",
+      "change": "Percentage change with + or - prefix",
+      "trend": "up/down/neutral",
+      "insight": "One-line interpretation of this metric"
+    }
+  ],
+  "analysis": [
+    "Executive Summary: Overall performance assessment and key findings",
+    "Revenue Analysis: Detailed breakdown of revenue metrics and trends",
+    "Marketing Efficiency: Analysis of advertising costs and effectiveness",
+    "Customer Metrics: Deep dive into customer behavior and lifetime value",
+    "Strategic Recommendations: Specific, actionable steps for improvement"
+  ]
+}`;
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -30,7 +70,7 @@ export default async function handler(
       messages: [
         {
           role: "system",
-          content: "You are a data analyst specializing in e-commerce and brand performance metrics. Provide clear, actionable insights based on the data provided. Focus on key performance indicators, trends, and specific recommendations for improvement."
+          content: SYSTEM_PROMPT
         },
         {
           role: "user",
@@ -39,9 +79,12 @@ export default async function handler(
       ],
       model: "deepseek-r1-distill-llama-70b",
       temperature: 0.6,
-      max_tokens: 2000,
+      max_tokens: 4096,
       top_p: 0.95,
-      stream: false
+      stream: false,
+      response_format: {
+        type: "json_object"
+      }
     });
 
     const analysis = chatCompletion.choices[0]?.message?.content;
