@@ -1,13 +1,6 @@
+// file path: src/pages/api/brand-analysis/progress.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-
-import { AnalysisProgress } from '@/lib/services/brandAnalysis';
-
-// Store analysis progress for each brand
-const progressStore = new Map<string, AnalysisProgress>();
-
-export function setProgress(brandName: string, progress: AnalysisProgress) {
-  progressStore.set(brandName, progress);
-}
+import { deleteProgress, getProgress } from '@/utils/progressStore';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -25,29 +18,30 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Connection', 'keep-alive');
 
   // Send initial progress
-  const initialProgress = progressStore.get(brand) || {
-    currentStep: 'analyzing'
+  const initialProgress = getProgress(brand) || {
+    currentStep: 'presence',
+    completedSteps: []
   };
   res.write(`data: ${JSON.stringify(initialProgress)}\n\n`);
 
   // Set up interval to check for progress updates
   const interval = setInterval(() => {
-    const progress = progressStore.get(brand);
+    const progress = getProgress(brand);
     if (progress) {
       res.write(`data: ${JSON.stringify(progress)}\n\n`);
       
       // If analysis is complete or has error, clean up
       if (progress.error || progress.currentStep === 'completed') {
-        progressStore.delete(brand);
+        deleteProgress(brand);
         clearInterval(interval);
         res.end();
       }
     }
-  }, 1000);
+  }, 500); // Check more frequently for smoother updates
 
   // Clean up on client disconnect
   req.on('close', () => {
     clearInterval(interval);
-    progressStore.delete(brand);
+    deleteProgress(brand);
   });
 }
