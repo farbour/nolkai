@@ -20,7 +20,8 @@ export default async function handler(
   const brandName = query.brand as string;
 
   if (!brandName) {
-    return res.status(400).json({ error: 'Brand name is required' });
+    res.status(400).json({ error: 'Brand name is required' });
+    return;
   }
 
   const fileName = `${brandName.toLowerCase().replace(/\s+/g, '-')}.json`;
@@ -30,13 +31,16 @@ export default async function handler(
     case 'GET':
       try {
         if (!fs.existsSync(filePath)) {
-          return res.status(404).json({ error: 'Analysis not found' });
+          res.status(404).json({ error: 'Analysis not found' });
+          return;
         }
         const data = await fs.promises.readFile(filePath, 'utf-8');
-        return res.status(200).json(JSON.parse(data));
+        res.status(200).json(JSON.parse(data));
+        return;
       } catch (error) {
         console.error('Error reading analysis:', error);
-        return res.status(500).json({ error: 'Failed to read analysis' });
+        res.status(500).json({ error: 'Failed to read analysis' });
+        return;
       }
 
     case 'POST':
@@ -116,18 +120,22 @@ export default async function handler(
         }
 
         await fs.promises.writeFile(filePath, JSON.stringify(finalData, null, 2), 'utf-8');
-        return res.status(200).json(finalData);
+        res.status(200).json(finalData);
+        return;
       } catch (error) {
         console.error('Error saving analysis:', error);
-        return res.status(500).json({ error: 'Failed to save analysis' });
+        res.status(500).json({ error: 'Failed to save analysis' });
+        return;
       }
 
     case 'HEAD':
       // Check if analysis exists
-      return res.status(fs.existsSync(filePath) ? 200 : 404).end();
+      res.status(fs.existsSync(filePath) ? 200 : 404).end();
+      return;
 
     default:
       res.setHeader('Allow', ['GET', 'POST', 'HEAD']);
-      return res.status(405).json({ error: `Method ${method} Not Allowed` });
+      res.status(405).json({ error: `Method ${method} Not Allowed` });
+      return;
   }
 }

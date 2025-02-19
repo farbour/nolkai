@@ -17,7 +17,8 @@ export default async function handler(
 ) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+    res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+    return;
   }
 
   try {
@@ -26,9 +27,11 @@ export default async function handler(
       .filter(file => file.endsWith('.json'))
       .map(file => file.replace(/\.json$/, '').replace(/-/g, ' '));
 
-    return res.status(200).json(brandNames);
+    res.status(200).json(brandNames);
+    return;
   } catch (error) {
     console.error('Error listing analyses:', error);
-    return res.status(500).json({ error: 'Failed to list analyses' });
+    res.status(500).json({ error: 'Failed to list analyses' });
+    return;
   }
 }
