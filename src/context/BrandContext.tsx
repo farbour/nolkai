@@ -1,167 +1,192 @@
 // file path: src/context/BrandContext.tsx
 import { Brand, BrandInfo } from '@/types/brand';
-import React, { createContext, useContext, useState } from 'react';
-import { brands, defaultBrand } from '../config/brands';
-import { hasExistingAnalysis, loadBrandAnalysis } from '@/utils/brandAnalysisStorage';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createBrand, deleteBrand, getBrands, updateBrand } from '@/lib/supabase';
 
 import { AnalysisProgress } from '@/lib/services/brandAnalysis';
+import { loadBrandAnalysis } from '@/utils/brandAnalysisStorage';
+import { sanitizeBrandName } from '@/utils/brandAnalysisStorage';
 
 interface BrandContextType {
   selectedBrand: string;
   setSelectedBrand: (brand: string) => void;
   availableBrands: string[];
-  addBrand: (name: string) => void;
-  updateBrand: (oldBrand: string, newBrand: string) => void;
-  deleteBrand: (brand: string) => void;
+  addBrand: (name: string) => Promise<void>;
+  updateBrand: (oldBrand: string, newBrand: string) => Promise<void>;
+  deleteBrand: (brand: string) => Promise<void>;
   brandsInfo: Record<string, Brand>;
   analyzeBrand: (brandName: string, onProgress?: (progress: AnalysisProgress) => void) => Promise<void>;
   cancelAnalysis: () => void;
   isAnalyzing: (brandName: string) => boolean;
   getBrandInfo: (brandName: string) => BrandInfo | undefined;
   getBrandError: (brandName: string) => string | undefined;
-  loadSavedAnalysis: (brandName: string) => Promise<boolean>;
-  hasAnalysis: (brandName: string) => Promise<boolean>;
+  loadSavedAnalysis: (brandName: string, signal?: AbortSignal) => Promise<BrandInfo | null>;
+  isLoading: boolean;
 }
 
 const BrandContext = createContext<BrandContextType | undefined>(undefined);
 
-function generateSlug(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-}
-
 export function BrandProvider({ children }: { children: React.ReactNode }) {
-  const [selectedBrand, setSelectedBrand] = useState(defaultBrand);
-  const [brandsList, setBrandsList] = useState(brands);
-  const [brandsInfo, setBrandsInfo] = useState<Record<string, Brand>>(() => {
-    // Initialize with default brands
-    return brands.reduce((acc, name) => {
-      acc[name] = {
-        id: crypto.randomUUID(),
-        name,
-        slug: generateSlug(name),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      return acc;
-    }, {} as Record<string, Brand>);
-  });
+  const [selectedBrand, setSelectedBrand] = useState<string>('');
+  const [brandsInfo, setBrandsInfo] = useState<Record<string, Brand>>({});
   const [abortController, setAbortController] = useState<AbortController | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const addBrand = (name: string) => {
-    if (!brandsList.includes(name)) {
-      setBrandsList([...brandsList, name]);
-      setBrandsInfo(prev => ({
-        ...prev,
-        [name]: {
-          id: crypto.randomUUID(),
-          name,
-          slug: generateSlug(name),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+  // Load initial brands from Supabase
+  useEffect(() => {
+    async function loadBrands() {
+      try {
+        const brands = await getBrands();
+        const brandsRecord = brands.reduce((acc, brand) => {
+          acc[brand.name] = brand;
+          return acc;
+        }, {} as Record<string, Brand>);
+        
+        setBrandsInfo(brandsRecord);
+        if (brands.length > 0 && !selectedBrand) {
+          setSelectedBrand(brands[0].name);
         }
-      }));
-    }
-  };
-
-  const updateBrand = (oldBrand: string, newBrand: string) => {
-    if (oldBrand === selectedBrand) {
-      setSelectedBrand(newBrand);
-    }
-    setBrandsList(brandsList.map(b => b === oldBrand ? newBrand : b));
-    setBrandsInfo(prev => {
-      const newBrandsInfo = { ...prev };
-      if (newBrandsInfo[oldBrand]) {
-        newBrandsInfo[newBrand] = {
-          ...newBrandsInfo[oldBrand],
-          name: newBrand,
-          slug: generateSlug(newBrand),
-          updatedAt: new Date().toISOString()
-        };
-        delete newBrandsInfo[oldBrand];
+      } catch (error) {
+        console.error('Error loading brands:', error);
+      } finally {
+        setIsLoading(false);
       }
-      return newBrandsInfo;
-    });
+    }
+
+    loadBrands();
+  }, []);
+
+  const addBrand = async (name: string) => {
+    const sanitizedName = sanitizeBrandName(name);
+    if (!brandsInfo[sanitizedName]) {
+      try {
+        const newBrand = await createBrand({
+          name: sanitizedName,
+          slug: sanitizedName,
+        });
+        
+        setBrandsInfo(prev => ({
+          ...prev,
+          [sanitizedName]: newBrand
+        }));
+      } catch (error) {
+        console.error('Error creating brand:', error);
+        throw error;
+      }
+    }
   };
 
-  const deleteBrand = (brand: string) => {
-    if (brand === selectedBrand) {
-      setSelectedBrand(brandsList[0] === brand ? brandsList[1] : brandsList[0]);
+  const updateBrandName = async (oldBrand: string, newBrand: string) => {
+    const sanitizedOldBrand = sanitizeBrandName(oldBrand);
+    const sanitizedNewBrand = sanitizeBrandName(newBrand);
+    
+    if (sanitizedOldBrand === selectedBrand) {
+      setSelectedBrand(sanitizedNewBrand);
     }
-    setBrandsList(brandsList.filter(b => b !== brand));
-    setBrandsInfo(prev => {
-      const newBrandsInfo = { ...prev };
-      delete newBrandsInfo[brand];
-      return newBrandsInfo;
-    });
+
+    try {
+      const brand = brandsInfo[sanitizedOldBrand];
+      if (brand) {
+        const updatedBrand = await updateBrand(brand.id, {
+          name: sanitizedNewBrand,
+          slug: sanitizedNewBrand,
+        });
+
+        setBrandsInfo(prev => {
+          const newBrandsInfo = { ...prev };
+          delete newBrandsInfo[sanitizedOldBrand];
+          newBrandsInfo[sanitizedNewBrand] = updatedBrand;
+          return newBrandsInfo;
+        });
+      }
+    } catch (error) {
+      console.error('Error updating brand:', error);
+      throw error;
+    }
+  };
+
+  const removeBrand = async (brand: string) => {
+    const sanitizedBrand = sanitizeBrandName(brand);
+    if (sanitizedBrand === selectedBrand) {
+      const availableBrands = Object.keys(brandsInfo);
+      setSelectedBrand(availableBrands[0] === sanitizedBrand ? availableBrands[1] : availableBrands[0]);
+    }
+
+    try {
+      const brandToDelete = brandsInfo[sanitizedBrand];
+      if (brandToDelete) {
+        await deleteBrand(brandToDelete.id);
+        setBrandsInfo(prev => {
+          const newBrandsInfo = { ...prev };
+          delete newBrandsInfo[sanitizedBrand];
+          return newBrandsInfo;
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting brand:', error);
+      throw error;
+    }
   };
 
   const cancelAnalysis = () => {
     if (abortController) {
-      abortController.abort();
-      setAbortController(null);
+      try {
+        abortController.abort();
+      } catch (error) {
+        console.error('Error aborting analysis:', error);
+      } finally {
+        setAbortController(null);
+      }
     }
   };
 
-  const loadSavedAnalysis = async (brandName: string, signal?: AbortSignal): Promise<boolean> => {
+  const loadSavedAnalysis = useCallback(async (brandName: string, signal?: AbortSignal): Promise<BrandInfo | null> => {
     try {
       const savedData = await loadBrandAnalysis(brandName, signal);
       if (savedData) {
-        setBrandsInfo(prev => ({
-          ...prev,
-          [brandName]: {
-            ...prev[brandName],
+        const brand = brandsInfo[brandName];
+        if (brand) {
+          const updatedBrand = await updateBrand(brand.id, {
             info: savedData,
-            updatedAt: new Date().toISOString()
-          }
-        }));
-        return true;
+          });
+          
+          setBrandsInfo(prev => ({
+            ...prev,
+            [brandName]: updatedBrand
+          }));
+        }
+        return savedData;
       }
-      return false;
+      return null;
     } catch (error) {
       console.error('Error loading saved analysis:', error);
-      return false;
+      return null;
     }
-  };
-
-  const hasAnalysis = async (brandName: string, signal?: AbortSignal): Promise<boolean> => {
-    return hasExistingAnalysis(brandName, signal);
-  };
+  }, [brandsInfo]);
 
   const analyzeBrand = async (brandName: string, onProgress?: (progress: AnalysisProgress) => void) => {
-    // Cancel any existing analysis
     cancelAnalysis();
 
-    // Create new abort controller
+    const sanitizedBrand = sanitizeBrandName(brandName);
+    const encodedBrand = encodeURIComponent(sanitizedBrand);
     const controller = new AbortController();
     setAbortController(controller);
 
-    setBrandsInfo(prev => ({
-      ...prev,
-      [brandName]: {
-        ...prev[brandName],
+    const brand = brandsInfo[sanitizedBrand];
+    if (brand) {
+      const updatedBrand = await updateBrand(brand.id, {
         isAnalyzing: true,
         error: undefined,
-        updatedAt: new Date().toISOString()
-      }
-    }));
-
-    try {
-      const response = await fetch('/api/brand-analysis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ brandName }),
-        signal: controller.signal
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to analyze brand');
-      }
+      setBrandsInfo(prev => ({
+        ...prev,
+        [sanitizedBrand]: updatedBrand
+      }));
+    }
 
-      // Set up event source for progress updates
-      const eventSource = new EventSource(`/api/brand-analysis/progress?brand=${encodeURIComponent(brandName)}`);
+    try {
+      const eventSource = new EventSource(`/api/brand-analysis/progress?brand=${encodedBrand}`);
       
       eventSource.onmessage = (event) => {
         const progress: AnalysisProgress = JSON.parse(event.data);
@@ -176,40 +201,70 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
         eventSource.close();
       });
 
-      const info: BrandInfo = await response.json();
-      setBrandsInfo(prev => ({
-        ...prev,
-        [brandName]: {
-          ...prev[brandName],
-          info,
-          isAnalyzing: false,
-          updatedAt: new Date().toISOString()
-        }
-      }));
+      const cleanup = () => {
+        eventSource.close();
+      };
 
-      eventSource.close();
+      try {
+        const response = await fetch('/api/brand-analysis', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ brandName: sanitizedBrand }),
+          signal: controller.signal
+        });
+
+        if (!response.ok) {
+          cleanup();
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to analyze brand');
+        }
+
+        const info: BrandInfo = await response.json();
+        if (brand) {
+          const updatedBrand = await updateBrand(brand.id, {
+            info,
+            isAnalyzing: false,
+          });
+
+          setBrandsInfo(prev => ({
+            ...prev,
+            [sanitizedBrand]: updatedBrand
+          }));
+        }
+
+        cleanup();
+      } catch (error) {
+        cleanup();
+        throw error;
+      }
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
-        setBrandsInfo(prev => ({
-          ...prev,
-          [brandName]: {
-            ...prev[brandName],
+        if (brand) {
+          const updatedBrand = await updateBrand(brand.id, {
             isAnalyzing: false,
-            updatedAt: new Date().toISOString()
-          }
-        }));
+          });
+
+          setBrandsInfo(prev => ({
+            ...prev,
+            [sanitizedBrand]: updatedBrand
+          }));
+        }
         return;
       }
 
-      setBrandsInfo(prev => ({
-        ...prev,
-        [brandName]: {
-          ...prev[brandName],
+      if (brand) {
+        const updatedBrand = await updateBrand(brand.id, {
           isAnalyzing: false,
           error: error instanceof Error ? error.message : 'An error occurred during analysis',
-          updatedAt: new Date().toISOString()
-        }
-      }));
+        });
+
+        setBrandsInfo(prev => ({
+          ...prev,
+          [sanitizedBrand]: updatedBrand
+        }));
+      }
       throw error;
     } finally {
       setAbortController(null);
@@ -231,10 +286,10 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
   const value = {
     selectedBrand,
     setSelectedBrand,
-    availableBrands: brandsList,
+    availableBrands: Object.keys(brandsInfo),
     addBrand,
-    updateBrand,
-    deleteBrand,
+    updateBrand: updateBrandName,
+    deleteBrand: removeBrand,
     brandsInfo,
     analyzeBrand,
     cancelAnalysis,
@@ -242,7 +297,7 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
     getBrandInfo,
     getBrandError,
     loadSavedAnalysis,
-    hasAnalysis,
+    isLoading,
   };
 
   return (

@@ -1,19 +1,20 @@
+import { Brand, BrandTab } from '@/types/brand';
 // file path: src/pages/brands/[slug].tsx
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { AnalysisProgress } from '@/components/brands/AnalysisProgress';
-import { BrandTab } from '@/types/brand';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { AnalysisProgress as ProgressType } from '@/lib/services/brandAnalysis';
+import { formatDate } from '@/utils/dateFormatter';
 import { useBrand } from '@/context/BrandContext';
 import { useRouter } from 'next/router';
 
 export default function BrandDetail() {
   const router = useRouter();
   const { slug } = router.query;
-  const { brandsInfo, analyzeBrand, cancelAnalysis, isAnalyzing, loadSavedAnalysis, hasAnalysis } = useBrand();
+  const { brandsInfo, analyzeBrand, cancelAnalysis, isAnalyzing, loadSavedAnalysis } = useBrand();
   const [activeTab, setActiveTab] = useState<BrandTab>('overview');
   const [analysisProgress, setAnalysisProgress] = useState<ProgressType>({
     currentStep: 'presence',
@@ -23,73 +24,54 @@ export default function BrandDetail() {
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(true);
   const hasLoadedRef = useRef<{[key: string]: boolean}>({});
 
-  const brand = Object.values(brandsInfo).find(b => b.slug === slug);
-
-  const checkExistingAnalysis = useCallback(async (
-    brandName: string,
-    isMounted: () => boolean,
-    signal: AbortSignal
-  ) => {
-    // Skip if we've already loaded this brand's data
-    if (hasLoadedRef.current[brandName]) {
-      if (isMounted()) {
-        setIsLoadingAnalysis(false);
-      }
-      return;
-    }
-    try {
-      const exists = await hasAnalysis(brandName, signal);
-      if (isMounted()) {
-        setHasExistingAnalysis(exists);
-        if (exists) {
-          await loadSavedAnalysis(brandName, signal);
-        }
-        // Mark this brand as loaded
-        hasLoadedRef.current[brandName] = true;
-      }
-    } catch (error) {
-      console.error('Error checking analysis:', error);
-    } finally {
-      if (isMounted()) {
-        setIsLoadingAnalysis(false);
-      }
-    }
-  }, [hasAnalysis, loadSavedAnalysis]);
+  const brand: Brand | undefined = Object.values(brandsInfo).find(b => b.slug === slug);
 
   useEffect(() => {
-    let mounted = true;
-    const isMounted = () => mounted;
-    let abortController: AbortController | null = null;
+    const brandName = brand?.name;
+    if (!brandName) return;
 
-    const checkAnalysis = async () => {
-      if (!brand?.name) return;
-      
-      setIsLoadingAnalysis(true);
-      abortController = new AbortController();
-      
+    // Skip if we've already loaded this brand's data
+    if (hasLoadedRef.current[brandName]) {
+      return;
+    }
+
+    let mounted = true;
+    const abortController = new AbortController();
+
+    const loadData = async () => {
       try {
-        await checkExistingAnalysis(brand.name, isMounted, abortController.signal);
+        setIsLoadingAnalysis(true);
+        const data = await loadSavedAnalysis(brandName, abortController.signal);
+        
+        if (!mounted) return;
+        
+        setHasExistingAnalysis(!!data);
+        hasLoadedRef.current[brandName] = true;
       } catch (error) {
-        console.error('Error in analysis check:', error);
-        if (isMounted()) {
+        if (!mounted) return;
+        console.error('Error loading analysis:', error);
+      } finally {
+        if (mounted) {
           setIsLoadingAnalysis(false);
         }
       }
     };
 
-    checkAnalysis();
+    loadData();
 
     return () => {
+      // Abort any ongoing requests
+      abortController.abort();
+      
+      // Mark component as unmounted
       mounted = false;
-      if (abortController) {
-        abortController.abort();
-      }
-      // Clear the loaded state when brand changes
-      if (brand?.name) {
-        delete hasLoadedRef.current[brand.name];
+      
+      // Clean up the loaded state
+      if (brandName) {
+        delete hasLoadedRef.current[brandName];
       }
     };
-  }, [brand?.name, checkExistingAnalysis]);
+  }, [brand?.name, loadSavedAnalysis]);
 
   if (!brand) {
     return (
@@ -234,7 +216,7 @@ export default function BrandDetail() {
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Unique Selling Points</h3>
                   <ul className="list-disc list-inside space-y-2">
-                    {brand.info.positioning?.uniqueSellingPoints?.map((point, index) => (
+                    {brand.info.positioning?.uniqueSellingPoints?.map((point: string, index: number) => (
                       <li key={index} className="text-gray-700">{point}</li>
                     )) || <li className="text-gray-500">No selling points available</li>}
                   </ul>
@@ -269,7 +251,7 @@ export default function BrandDetail() {
                     <div>
                       <label className="text-sm font-medium text-gray-500">Strengths</label>
                       <ul className="list-disc list-inside mt-2">
-                        {competitor.strengths?.map((strength, idx) => (
+                        {competitor.strengths?.map((strength: string, idx: number) => (
                           <li key={idx} className="text-gray-700">{strength}</li>
                         ))}
                       </ul>
@@ -277,7 +259,7 @@ export default function BrandDetail() {
                     <div>
                       <label className="text-sm font-medium text-gray-500">Weaknesses</label>
                       <ul className="list-disc list-inside mt-2">
-                        {competitor.weaknesses?.map((weakness, idx) => (
+                        {competitor.weaknesses?.map((weakness: string, idx: number) => (
                           <li key={idx} className="text-gray-700">{weakness}</li>
                         ))}
                       </ul>
@@ -318,7 +300,7 @@ export default function BrandDetail() {
                 <div className="bg-white p-6 rounded-lg shadow">
                   <h3 className="text-lg font-semibold mb-4">Common Praises</h3>
                   <ul className="list-disc list-inside space-y-2">
-                    {brand.info.reviews.commonPraises?.map((praise, index) => (
+                    {brand.info.reviews.commonPraises?.map((praise: string, index: number) => (
                       <li key={index} className="text-gray-700">{praise}</li>
                     )) || <li className="text-gray-500">No praises available</li>}
                   </ul>
@@ -327,7 +309,7 @@ export default function BrandDetail() {
                 <div className="bg-white p-6 rounded-lg shadow">
                   <h3 className="text-lg font-semibold mb-4">Common Complaints</h3>
                   <ul className="list-disc list-inside space-y-2">
-                    {brand.info.reviews.commonComplaints?.map((complaint, index) => (
+                    {brand.info.reviews.commonComplaints?.map((complaint: string, index: number) => (
                       <li key={index} className="text-gray-700">{complaint}</li>
                     )) || <li className="text-gray-500">No complaints available</li>}
                   </ul>
@@ -337,7 +319,7 @@ export default function BrandDetail() {
               <div className="bg-white p-6 rounded-lg shadow">
                 <h3 className="text-lg font-semibold mb-4">Review Sources</h3>
                 <ul className="list-disc list-inside space-y-2">
-                  {brand.info.reviews.sources?.map((source, index) => (
+                  {brand.info.reviews.sources?.map((source: string, index: number) => (
                     <li key={index} className="text-gray-700">{source}</li>
                   )) || <li className="text-gray-500">No sources available</li>}
                 </ul>
@@ -367,23 +349,23 @@ export default function BrandDetail() {
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-500">Created At</label>
-                <p className="text-gray-900">{new Date(brand.createdAt).toLocaleString()}</p>
+                <p className="text-gray-900">{formatDate(brand.createdAt)}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-500">Last Updated</label>
-                <p className="text-gray-900">{new Date(brand.updatedAt).toLocaleString()}</p>
+                <p className="text-gray-900">{formatDate(brand.updatedAt)}</p>
               </div>
               {brand.info && (
                 <div>
                   <label className="text-sm font-medium text-gray-500">Last Analysis</label>
-                  <p className="text-gray-900">{new Date(brand.info.lastUpdated).toLocaleString()}</p>
+                  <p className="text-gray-900">{formatDate(brand.info.lastUpdated)}</p>
                 </div>
               )}
             </div>
           </div>
         </TabsContent>
       </Tabs>
-     )}
-   </div>
- );
+      )}
+    </div>
+  );
 }

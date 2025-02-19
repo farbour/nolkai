@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 import fs from 'fs';
 import path from 'path';
+import { sanitizeBrandName } from '@/utils/brandAnalysisStorage';
 
 const ANALYSIS_DIR = path.join(process.cwd(), 'public', 'brand-analysis');
 
@@ -17,15 +18,20 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const { method, query } = req;
-  const brandName = query.brand as string;
+  const brandName = decodeURIComponent(query.brand as string);
 
   if (!brandName) {
     res.status(400).json({ error: 'Brand name is required' });
     return;
   }
 
-  const fileName = `${brandName.toLowerCase().replace(/\s+/g, '-')}.json`;
+  const fileName = `${sanitizeBrandName(brandName)}.json`;
   const filePath = path.join(ANALYSIS_DIR, fileName);
+
+  // Set cache control headers
+  res.setHeader('Cache-Control', 'no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
 
   switch (method) {
     case 'GET':
@@ -35,7 +41,11 @@ export default async function handler(
           return;
         }
         const data = await fs.promises.readFile(filePath, 'utf-8');
-        res.status(200).json(JSON.parse(data));
+        const parsedData = JSON.parse(data);
+        
+        // Add last modified timestamp to response
+        res.setHeader('Last-Modified', new Date(parsedData.lastUpdated).toUTCString());
+        res.status(200).json(parsedData);
         return;
       } catch (error) {
         console.error('Error reading analysis:', error);

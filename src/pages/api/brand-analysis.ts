@@ -2,6 +2,7 @@
 import { AnalysisProgress, BrandAnalysisService, BrandInfo } from '@/lib/services/brandAnalysis';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { sanitizeBrandName } from '@/utils/brandAnalysisStorage';
 import { setProgress } from '@/utils/progressStore';
 
 type ErrorResponse = {
@@ -16,7 +17,8 @@ export default async function handler(
   res: NextApiResponse<BrandInfo | { progress: AnalysisProgress } | ErrorResponse>
 ) {
   if (req.method === 'POST') {
-    const { brandName } = req.body;
+    const { brandName: encodedBrandName } = req.body;
+    const brandName = sanitizeBrandName(decodeURIComponent(encodedBrandName));
 
     if (!brandName) {
       return res.status(400).json({ error: 'Brand name is required' });

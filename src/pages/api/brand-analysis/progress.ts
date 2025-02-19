@@ -2,15 +2,18 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { deleteProgress, getProgress } from '@/utils/progressStore';
 
+import { sanitizeBrandName } from '@/utils/brandAnalysisStorage';
+
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { brand } = req.query;
-  if (!brand || typeof brand !== 'string') {
+  const encodedBrand = req.query.brand;
+  if (!encodedBrand || typeof encodedBrand !== 'string') {
     return res.status(400).json({ error: 'Brand name is required' });
   }
+  const brand = sanitizeBrandName(decodeURIComponent(encodedBrand));
 
   // Set up SSE headers
   res.setHeader('Content-Type', 'text/event-stream');
@@ -32,16 +35,24 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       
       // If analysis is complete or has error, clean up
       if (progress.error || progress.currentStep === 'completed') {
-        deleteProgress(brand);
-        clearInterval(interval);
-        res.end();
+        cleanup();
       }
     }
-  }, 500); // Check more frequently for smoother updates
+  }, 500);
+
+  // Set up timeout to prevent infinite polling (5 minutes)
+  const timeout = setTimeout(() => {
+    cleanup();
+  }, 5 * 60 * 1000);
+
+  // Cleanup function
+  const cleanup = () => {
+    clearInterval(interval);
+    clearTimeout(timeout);
+    deleteProgress(brand);
+    res.end();
+  };
 
   // Clean up on client disconnect
-  req.on('close', () => {
-    clearInterval(interval);
-    deleteProgress(brand);
-  });
+  req.on('close', cleanup);
 }
