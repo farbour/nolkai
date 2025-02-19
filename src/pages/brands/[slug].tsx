@@ -1,6 +1,6 @@
 // file path: src/pages/brands/[slug].tsx
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { AnalysisProgress } from '@/components/brands/AnalysisProgress';
 import { BrandTab } from '@/types/brand';
@@ -21,6 +21,7 @@ export default function BrandDetail() {
   });
   const [hasExistingAnalysis, setHasExistingAnalysis] = useState(false);
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(true);
+  const hasLoadedRef = useRef<{[key: string]: boolean}>({});
 
   const brand = Object.values(brandsInfo).find(b => b.slug === slug);
 
@@ -29,6 +30,13 @@ export default function BrandDetail() {
     isMounted: () => boolean,
     signal: AbortSignal
   ) => {
+    // Skip if we've already loaded this brand's data
+    if (hasLoadedRef.current[brandName]) {
+      if (isMounted()) {
+        setIsLoadingAnalysis(false);
+      }
+      return;
+    }
     try {
       const exists = await hasAnalysis(brandName, signal);
       if (isMounted()) {
@@ -36,6 +44,8 @@ export default function BrandDetail() {
         if (exists) {
           await loadSavedAnalysis(brandName, signal);
         }
+        // Mark this brand as loaded
+        hasLoadedRef.current[brandName] = true;
       }
     } catch (error) {
       console.error('Error checking analysis:', error);
@@ -73,6 +83,10 @@ export default function BrandDetail() {
       mounted = false;
       if (abortController) {
         abortController.abort();
+      }
+      // Clear the loaded state when brand changes
+      if (brand?.name) {
+        delete hasLoadedRef.current[brand.name];
       }
     };
   }, [brand?.name, checkExistingAnalysis]);
