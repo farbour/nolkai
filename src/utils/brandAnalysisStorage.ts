@@ -30,7 +30,6 @@ export const loadBrandAnalysis = async (brandName: string, signal?: AbortSignal)
         method: 'GET',
         signal,
         headers: {
-          'Content-Type': 'application/json',
           'Accept': 'application/json, text/plain, */*',
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
@@ -62,7 +61,6 @@ export const listSavedAnalyses = async (signal?: AbortSignal): Promise<string[]>
     const response = await fetch('/api/brand-analysis/storage/list', {
       signal,
       headers: {
-        'Content-Type': 'application/json',
         'Accept': 'application/json, text/plain, */*',
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache'
