@@ -1,0 +1,13 @@
+{
+  "brand": "wolf-grizzly",
+  "analysis": {
+    "presence": "strong",
+    "positioning": "premium",
+    "competitors": ["brandA", "brandB"],
+    "reviews": {
+      "positive": 85,
+      "negative": 15
+    },
+    "market": "outdoor equipment"
+  }
+}
