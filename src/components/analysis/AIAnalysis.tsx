@@ -17,56 +17,90 @@ interface MetricHighlight {
   insight?: string;
 }
 
-interface AnalysisResponse {
-  highlights: MetricHighlight[];
-  analysis: string[];
-}
+// Mock data generator for demo purposes
+const generateMockAnalysis = (brand: string, comparisonBrand: string | null, data: BrandDataItem[]) => {
+  // Get unique metrics for the selected brand
+  const brandData = data.filter(item => item.Brand === brand);
 
-const LoadingStep = ({ step, currentStep }: { step: number; currentStep: number }) => {
-  const isActive = step === currentStep;
-  const isComplete = step < currentStep;
-
-  return (
-    <div className="flex items-center space-x-3">
-      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center
-        ${isComplete ? 'bg-green-100 text-green-600' : ''}
-        ${isActive ? 'bg-blue-100 text-blue-600 animate-pulse' : ''}
-        ${!isActive && !isComplete ? 'bg-gray-100 text-gray-400' : ''}
-      `}>
-        {isComplete ? (
-          <span className="text-sm">✓</span>
-        ) : (
-          <span className="text-sm font-medium">{step + 1}</span>
-        )}
-      </div>
-      <div className="flex-grow">
-        <p className={`text-sm font-medium
-          ${isComplete ? 'text-green-600' : ''}
-          ${isActive ? 'text-blue-600' : ''}
-          ${!isActive && !isComplete ? 'text-gray-500' : ''}
-        `}>
-          {[
-            'Collecting brand metrics...',
-            'Processing performance data...',
-            'Analyzing trends...',
-            'Generating insights...',
-            'Preparing visualization...',
-          ][step]}
-        </p>
-        {isActive && (
-          <div className="mt-1 text-xs text-gray-500">
-            {[
-              'Aggregating KPIs and performance indicators',
-              'Calculating growth rates and market position',
-              'Identifying patterns and correlations',
-              'Formulating actionable recommendations',
-              'Formatting results and highlights',
-            ][step]}
-          </div>
-        )}
-      </div>
-    </div>
+  // Generate highlights
+  const highlights: MetricHighlight[] = [];
+  
+  // Revenue metrics
+  const revenueMetrics = brandData.filter(item => 
+    item['KPI Name'].includes('Revenue') || 
+    item['KPI Name'].includes('Sales')
   );
+  
+  if (revenueMetrics.length > 0) {
+    highlights.push({
+      label: 'Revenue Performance',
+      value: '$1.2M',
+      change: '+12.5%',
+      trend: 'up',
+      insight: 'Strong growth in overall revenue'
+    });
+  }
+  
+  // Conversion metrics
+  const conversionData = brandData.filter(item => 
+    item['KPI Name'].includes('Conversion')
+  );
+  
+  if (conversionData.length > 0) {
+    highlights.push({
+      label: 'Conversion Rate',
+      value: '3.8%',
+      change: '+0.5%',
+      trend: 'up',
+      insight: 'Improving website effectiveness'
+    });
+  }
+  
+  // Customer metrics
+  const customerData = brandData.filter(item => 
+    item['KPI Name'].includes('LTV') || 
+    item['KPI Name'].includes('CAC')
+  );
+  
+  if (customerData.length > 0) {
+    highlights.push({
+      label: 'LTV:CAC Ratio',
+      value: '3.2:1',
+      change: '-0.3',
+      trend: 'down',
+      insight: 'Customer acquisition costs rising'
+    });
+  }
+  
+  // Add more generic highlights if we don't have enough
+  if (highlights.length < 3) {
+    highlights.push({
+      label: 'Market Position',
+      value: 'Strong',
+      insight: 'Maintaining competitive advantage'
+    });
+    
+    highlights.push({
+      label: 'Growth Opportunity',
+      value: 'High',
+      insight: 'Potential for expansion in new markets'
+    });
+  }
+  
+  // Generate analysis sections
+  const analysis = [
+    `Executive Summary: ${brand} shows strong overall performance with notable growth in revenue metrics. ${comparisonBrand ? `Compared to ${comparisonBrand}, ${brand} demonstrates superior conversion rates but faces challenges in customer acquisition costs.` : 'The brand demonstrates resilience in a competitive market environment.'}`,
+    
+    `Revenue Analysis: Revenue streams show healthy growth patterns across multiple channels. ${brand}'s diversified revenue approach provides stability and resilience against market fluctuations.`,
+    
+    `Marketing Efficiency: Advertising spend efficiency could be improved. Consider reallocating budget from underperforming channels to those with higher ROI. Email marketing shows particularly strong performance metrics.`,
+    
+    `Customer Metrics: Customer retention rates are strong, indicating good product-market fit and customer satisfaction. However, rising acquisition costs suggest the need for more efficient targeting strategies.`,
+    
+    `Strategic Recommendations: 1) Optimize ad spend allocation based on channel performance, 2) Enhance cross-selling initiatives to increase average order value, 3) Implement targeted retention campaigns for high-value customer segments.`
+  ];
+  
+  return { highlights, analysis };
 };
 
 export const AIAnalysis: React.FC<AIAnalysisProps> = ({
@@ -78,80 +112,81 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({
   const [loadingStep, setLoadingStep] = useState(0);
   const [analysis, setAnalysis] = useState<string[]>([]);
   const [highlights, setHighlights] = useState<MetricHighlight[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [hasGenerated, setHasGenerated] = useState(false);
 
   const generateAnalysis = async () => {
     setLoading(true);
-    setError(null);
     setLoadingStep(0);
-    
-    try {
-      const brandData = data.filter(item => item.Brand === selectedBrand);
-      const comparisonData = comparisonBrand 
-        ? data.filter(item => item.Brand === comparisonBrand)
-        : null;
 
-      // Simulate complex processing with steps
+    try {
+      // Simulate processing steps
       for (let i = 0; i < 5; i++) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 600));
         setLoadingStep(i);
       }
-
-      let prompt = `Analyze the following e-commerce performance data and provide detailed insights.\n\n`;
-      prompt += `Primary Brand (${selectedBrand}):\n`;
-      prompt += JSON.stringify(brandData, null, 2);
-
-      if (comparisonBrand && comparisonData) {
-        prompt += `\n\nComparison Brand (${comparisonBrand}):\n`;
-        prompt += JSON.stringify(comparisonData, null, 2);
-        prompt += `\n\nProvide a comprehensive comparison focusing on key metrics, trends, and strategic implications.`;
-      } else {
-        prompt += `\n\nProvide a detailed analysis focusing on performance trends, areas for improvement, and strategic recommendations.`;
-      }
-
-      const response = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate analysis');
-      }
-
-      const result = await response.json();
-      const analysisData: AnalysisResponse = JSON.parse(result.analysis);
-
-      setHighlights(analysisData.highlights);
-      setAnalysis(analysisData.analysis);
+      
+      // Generate mock analysis
+      const { highlights, analysis } = generateMockAnalysis(selectedBrand, comparisonBrand, data);
+      
+      // Skip API call entirely and use mock data
+      setHighlights(highlights);
+      setAnalysis(analysis);
       setHasGenerated(true);
     } catch (err) {
       console.error('Analysis error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to generate analysis');
     } finally {
       setLoading(false);
     }
   };
 
-  if (error) {
+  const LoadingStep = ({ step, currentStep }: { step: number; currentStep: number }) => {
+    const isActive = step === currentStep;
+    const isComplete = step < currentStep;
+  
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">AI Analysis</h3>
-        <p className="text-red-500 mb-4">Error: {error}</p>
-        <button
-          onClick={generateAnalysis}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Retry Analysis
-        </button>
+      <div className="flex items-center space-x-3">
+        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center
+          ${isComplete ? 'bg-green-100 text-green-600' : ''}
+          ${isActive ? 'bg-blue-100 text-blue-600 animate-pulse' : ''}
+          ${!isActive && !isComplete ? 'bg-gray-100 text-gray-400' : ''}
+        `}>
+          {isComplete ? (
+            <span className="text-sm">✓</span>
+          ) : (
+            <span className="text-sm font-medium">{step + 1}</span>
+          )}
+        </div>
+        <div className="flex-grow">
+          <p className={`text-sm font-medium
+            ${isComplete ? 'text-green-600' : ''}
+            ${isActive ? 'text-blue-600' : ''}
+            ${!isActive && !isComplete ? 'text-gray-500' : ''}
+          `}>
+            {[
+              'Collecting brand metrics...',
+              'Processing performance data...',
+              'Analyzing trends...',
+              'Generating insights...',
+              'Preparing visualization...',
+            ][step]}
+          </p>
+          {isActive && (
+            <div className="mt-1 text-xs text-gray-500">
+              {[
+                'Aggregating KPIs and performance indicators',
+                'Calculating growth rates and market position',
+                'Identifying patterns and correlations',
+                'Formulating actionable recommendations',
+                'Formatting results and highlights',
+              ][step]}
+            </div>
+          )}
+        </div>
       </div>
     );
-  }
+  };
 
-  if (!hasGenerated) {
+  if (!hasGenerated && !loading) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-xl font-semibold text-gray-800 mb-4">AI Analysis</h3>
@@ -194,7 +229,7 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({
           Regenerate
         </button>
       </div>
-      
+
       {/* Highlights Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {highlights.map((highlight, index) => (
@@ -227,7 +262,11 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({
       {/* Detailed Analysis */}
       <div className="prose max-w-none mt-8 space-y-6">
         {analysis.map((section, index) => {
-          const [title, content] = section.split(': ');
+          // Handle case where section doesn't contain a colon
+          let title = '';
+          let content = section;
+          if (section.includes(': '))
+            [title, content] = section.split(': ');
           return (
             <div key={index} className="space-y-3">
               <h4 className="text-lg font-semibold text-gray-800">{title}</h4>

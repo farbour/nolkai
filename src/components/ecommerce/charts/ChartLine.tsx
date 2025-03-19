@@ -4,6 +4,7 @@ import {
   Chart as ChartJS,
   ChartOptions,
   Legend,
+  LineController,
   LineElement,
   LinearScale,
   PointElement,
@@ -23,6 +24,7 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  LineController,
   Title,
   Tooltip,
   Legend

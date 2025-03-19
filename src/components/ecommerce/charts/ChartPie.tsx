@@ -4,6 +4,7 @@ import {
   Chart as ChartJS,
   ChartOptions,
   Legend,
+  PieController,
   Tooltip,
 } from 'chart.js';
 import { chartColors, commonOptions } from './chartConfig';
@@ -15,6 +16,7 @@ import React from 'react';
 // Register ChartJS components
 ChartJS.register(
   ArcElement,
+  PieController,
   Tooltip,
   Legend
 );

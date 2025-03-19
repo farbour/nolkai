@@ -11,7 +11,9 @@ export const DataSelector: React.FC<DataSelectorProps> = ({
 }) => {
   const dataFiles = [
     { label: 'Main Data', value: '/data.csv' },
-    { label: 'Public Data', value: '/public/data.csv' },
+    { label: 'General KPIs', value: '/data/KPIs Table - ChatGPT Extract.csv' },
+    { label: 'Amazon KPIs', value: '/data/Amazon - KPIs Table - ChatGPT Extract.csv' },
+    { label: 'Shopify KPIs', value: '/data/Shopify - KPIs Table - ChatGPT Extract.csv' },
   ];
 
   return (

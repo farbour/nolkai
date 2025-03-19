@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "commit": "git add . && git commit -m",
-    "migrate-brands": "tsx scripts/migrate-brands.ts"
+    "migrate-brands": "tsx scripts/migrate-brands.ts",
+    "import-ecommerce-data": "tsx scripts/import-ecommerce-data.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
@@ -26,10 +27,12 @@
     "@types/d3": "^7.4.3",
     "@uiw/react-md-editor": "^4.0.5",
     "axios": "^1.7.9",
-    "chart.js": "^4.4.7",
+    "chart.js": "^4.4.1",
+    "chartjs-node-canvas": "^4.1.6",
     "cheerio": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "csv-parser": "^3.0.0",
     "d3": "^7.9.0",
     "framer-motion": "^12.4.4",
     "google-auth-library": "^9.15.1",

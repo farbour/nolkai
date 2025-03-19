@@ -1,0 +1,172 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "E-commerce KPI Data Schema",
+  "description": "Schema for e-commerce key performance indicators across multiple platforms",
+  "type": "object",
+  "properties": {
+    "ecommerceKpiData": {
+      "type": "array",
+      "description": "Collection of e-commerce KPI data points",
+      "items": {
+        "type": "object",
+        "required": ["brand", "kpiName", "kpiUnit", "monthOfDate", "yearOfDate"],
+        "properties": {
+          "brand": {
+            "type": "string",
+            "description": "The name of the brand",
+            "examples": ["Alex Bottle", "Kana", "Loctote", "Wolf & Grizzly"]
+          },
+          "kpiName": {
+            "type": "string",
+            "description": "The name of the key performance indicator",
+            "examples": ["TACOS", "Conversion Rate", "D2C Contribution Margin", "Repeat Rate"]
+          },
+          "kpiUnit": {
+            "type": "string",
+            "description": "The unit of measurement for the KPI",
+            "enum": ["%", "$", "Number"],
+            "examples": ["%", "$", "Number"]
+          },
+          "monthOfDate": {
+            "type": "string",
+            "description": "The month of the data point",
+            "enum": [
+              "January", "February", "March", "April", 
+              "May", "June", "July", "August", 
+              "September", "October", "November", "December"
+            ]
+          },
+          "yearOfDate": {
+            "type": "integer",
+            "description": "The year of the data point",
+            "minimum": 2021,
+            "maximum": 2025
+          },
+          "thisPeriodValue": {
+            "type": ["number", "null"],
+            "description": "The value of the KPI for the specified period (can be null for missing data)"
+          },
+          "platform": {
+            "type": "string",
+            "description": "The e-commerce platform the data is from",
+            "enum": ["Amazon", "Shopify", "General"],
+            "default": "General"
+          }
+        }
+      }
+    },
+    "kpiDefinitions": {
+      "type": "array",
+      "description": "Definitions of the KPIs used in the dataset",
+      "items": {
+        "type": "object",
+        "required": ["kpiName", "description", "unit"],
+        "properties": {
+          "kpiName": {
+            "type": "string",
+            "description": "The name of the KPI"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of what the KPI measures"
+          },
+          "unit": {
+            "type": "string",
+            "description": "The unit of measurement",
+            "enum": ["%", "$", "Number"]
+          },
+          "category": {
+            "type": "string",
+            "description": "The category the KPI belongs to",
+            "enum": [
+              "Advertising", "Revenue", "Profitability", 
+              "Customer Behavior", "Inventory", "Marketing"
+            ]
+          },
+          "formula": {
+            "type": "string",
+            "description": "The formula used to calculate the KPI (if applicable)"
+          }
+        }
+      }
+    },
+    "brands": {
+      "type": "array",
+      "description": "Information about the brands in the dataset",
+      "items": {
+        "type": "object",
+        "required": ["brandName"],
+        "properties": {
+          "brandName": {
+            "type": "string",
+            "description": "The name of the brand"
+          },
+          "category": {
+            "type": "string",
+            "description": "The product category of the brand"
+          },
+          "platforms": {
+            "type": "array",
+            "description": "The e-commerce platforms the brand sells on",
+            "items": {
+              "type": "string",
+              "enum": ["Amazon", "Shopify", "Other"]
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "ecommerceKpiData": [
+        {
+          "brand": "Alex Bottle",
+          "kpiName": "TACOS",
+          "kpiUnit": "%",
+          "monthOfDate": "January",
+          "yearOfDate": 2021,
+          "thisPeriodValue": 410.406219319,
+          "platform": "Shopify"
+        },
+        {
+          "brand": "Kana",
+          "kpiName": "Conversion Rate",
+          "kpiUnit": "%",
+          "monthOfDate": "February",
+          "yearOfDate": 2022,
+          "thisPeriodValue": 3.5,
+          "platform": "Amazon"
+        }
+      ],
+      "kpiDefinitions": [
+        {
+          "kpiName": "TACOS",
+          "description": "Total Advertising Cost of Sales - the percentage of revenue spent on advertising",
+          "unit": "%",
+          "category": "Advertising",
+          "formula": "(Ad Spend / Revenue) * 100"
+        },
+        {
+          "kpiName": "Conversion Rate",
+          "description": "Percentage of visitors who make a purchase",
+          "unit": "%",
+          "category": "Customer Behavior",
+          "formula": "(Number of Sales / Number of Visitors) * 100"
+        }
+      ],
+      "brands": [
+        {
+          "brandName": "Alex Bottle",
+          "category": "Drinkware",
+          "platforms": ["Amazon", "Shopify"]
+        },
+        {
+          "brandName": "Kana",
+          "category": "Cookware",
+          "platforms": ["Amazon", "Shopify"]
+        }
+      ]
+    }
+  ]
+}
