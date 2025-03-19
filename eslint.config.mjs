@@ -11,9 +11,10 @@ const compat = new FlatCompat({
 const eslintConfig = [
   {
     ignores: ["src/utils/brandAnalysisStorage.js"]
-  },
-  ...compat.extends("next/core-web-vitals", "next/typescript")
+  }
 ];
+
+eslintConfig.push(...compat.extends("next/core-web-vitals", "next/typescript"));
 ];
 
 export default eslintConfig;

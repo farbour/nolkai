@@ -93,7 +93,7 @@ export function processReportData(
   
   // Determine previous period based on current period
   let previousMonths: string[] = [];
-  let previousYear = currentYear;
+  let previousYear: string | number = currentYear;
   
   if (currentMonths.length === 1) {
     // For a month, previous period is the previous month
@@ -128,7 +128,7 @@ export function processReportData(
   
   // Convert previousYear to string if it's a number
   if (typeof previousYear === 'number') {
-    previousYear = previousYear.toString();
+    previousYear = (previousYear as number).toString();
   }
   
   // Determine if this is a month or quarter report

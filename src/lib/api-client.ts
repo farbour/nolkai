@@ -1,5 +1,5 @@
 // file path: src/lib/api-client.ts
-import { BrandInfo } from '@/lib/services/brandAnalysis';
+import { BrandInfo } from '@/types/brand';
 
 interface ApiResponse<T> {
   success: boolean;

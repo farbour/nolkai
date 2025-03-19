@@ -15,7 +15,7 @@ interface BrandContextType {
   updateBrand: (oldBrand: string, newBrand: string) => Promise<void>;
   deleteBrand: (brand: string) => Promise<void>;
   brandsInfo: Record<string, Brand>;
-  analyzeBrand: (brandName: string, onProgress?: (progress: AnalysisProgress) => void) => Promise<void>;
+  analyzeBrand: (brandName: string, onProgress?: (progress: AnalysisProgress) => void) => Promise<BrandInfo | undefined>;
   cancelAnalysis: () => void;
   isAnalyzing: (brandName: string) => boolean;
   getBrandInfo: (brandName: string) => BrandInfo | undefined;

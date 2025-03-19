@@ -5,7 +5,7 @@ interface MetricItem {
   value: number;
   unit: string;
   month: string;
-  year: string;
+  year: string | number;
 }
 
 interface GroupedMetrics {
@@ -57,7 +57,7 @@ export function getLatestBrandData(data: BrandDataItem[], brand: string): BrandD
   const brandData = getBrandData(data, brand);
   
   // Get the latest date
-  const latestDate = brandData.reduce((latest: { month: string, year: string } | null, item: BrandDataItem) => {
+  const latestDate = brandData.reduce((latest: { month: string, year: string | number } | null, item: BrandDataItem) => {
     if (!latest) {
       return { month: item['Month of Date'], year: item['Year of Date'] };
     }

@@ -41,7 +41,12 @@ export default function BrandsPage() {
             'presence', 'positioning', 'competitors', 'reviews', 'market'
           ];
           
-          const currentIndex = steps.indexOf(prev.currentStep);
+          // Handle 'completed' step or any step not in the steps array
+          if (prev.currentStep === 'completed' || !steps.includes(prev.currentStep as any)) {
+            return prev;
+          }
+          
+          const currentIndex = steps.indexOf(prev.currentStep as any);
           if (currentIndex < steps.length - 1) {
             const newStep = steps[currentIndex + 1];
             return {

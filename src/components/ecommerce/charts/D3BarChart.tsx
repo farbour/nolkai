@@ -109,7 +109,8 @@ export const D3BarChart: React.FC<D3BarChartProps> = ({
 
     // Add hover effects and tooltip
     g.selectAll('.bar')
-      .on('mouseover', function(this: SVGRectElement, event: MouseEvent, d: ChartDataPoint) {
+      .on('mouseover', function(event, d) {
+        const data = d as ChartDataPoint;
         d3.select(this)
           .transition()
           .duration(200)
@@ -119,8 +120,8 @@ export const D3BarChart: React.FC<D3BarChartProps> = ({
         tooltip
           .style('visibility', 'visible')
           .html(`
-            <strong>${d[indexBy]}</strong><br/>
-            ${valueFormat(Number(d[keys[0]]))}
+            <strong>${data[indexBy]}</strong><br/>
+            ${valueFormat(Number(data[keys[0]]))}
           `);
       })
       .on('mousemove', (event: MouseEvent) => {
@@ -128,11 +129,12 @@ export const D3BarChart: React.FC<D3BarChartProps> = ({
           .style('top', (event.pageY - 10) + 'px')
           .style('left', (event.pageX + 10) + 'px');
       })
-      .on('mouseout', function(this: SVGRectElement, event: MouseEvent, d: ChartDataPoint) {
+      .on('mouseout', function(event, d) {
+        const data = d as ChartDataPoint;
         d3.select(this)
           .transition()
           .duration(200)
-          .attr('fill', colorScale(String(d[indexBy])));
+          .attr('fill', colorScale(String(data[indexBy])));
 
         d3.select(tooltipRef.current)
           .style('visibility', 'hidden');

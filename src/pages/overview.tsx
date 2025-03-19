@@ -136,8 +136,8 @@ const OverviewPage: React.FC = () => {
           }
         }
         
-        // If no file was found, throw an error
-        if (!response.ok) {
+        // If no file was found or response is undefined, throw an error
+        if (!response || !response.ok) {
           throw new Error('Failed to fetch data: No valid CSV files found in the specified locations');
         }
         
@@ -496,8 +496,8 @@ const OverviewPage: React.FC = () => {
           }
         }
         
-        // If no file was found, throw an error
-        if (!response.ok) {
+        // If no file was found or response is undefined, throw an error
+        if (!response || !response.ok) {
           throw new Error('Failed to fetch data: No valid CSV files found in the specified locations');
         }
         

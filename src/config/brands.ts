@@ -34,8 +34,13 @@ export const brands = [
 // Default selected brand
 export const defaultBrand = 'Alex Bottle';
 
+// Filter data by brand
+export const filterDataByBrand = (data: BrandDataItem[], brand: string): BrandDataItem[] => {
+  return data.filter(item => item.Brand === brand);
+};
 export const getBrandMetrics = (data: BrandDataItem[], brand: string) => {
-  const brandData = data.filter(item => item.Brand === brand);
+  const brandData = filterDataByBrand(data, brand);
+  
   
   const percentageMetrics = brandData
     .filter(item => item['KPI Unit'] === '%')

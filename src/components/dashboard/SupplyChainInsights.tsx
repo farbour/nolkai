@@ -90,7 +90,7 @@ export const SupplyChainInsights: React.FC<SupplyChainInsightsProps> = ({
               <p className="text-sm text-gray-600">{content.description}</p>
               <div className="space-y-2">
                 {(Array.isArray(content[type as keyof typeof content])
-                  ? content[type as keyof typeof content] as string[]
+                  ? (content[type as keyof typeof content] as unknown) as string[]
                   : []
                 ).map((item: string, index: number) => (
                   <div key={index} className="flex items-start space-x-2">

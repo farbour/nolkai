@@ -45,7 +45,7 @@ export const MarketGrowthChart: React.FC<MarketGrowthChartProps> = ({ data }) =>
       </defs>
       <CartesianGrid 
         strokeDasharray="3 3" 
-        stroke={NOLK_COLORS.accent3} 
+        stroke={NOLK_COLORS.gray}
         vertical={false}
       />
       <XAxis 
