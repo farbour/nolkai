@@ -312,7 +312,7 @@ export default function Analysis() {
     };
 
     fetchData();
-  }, [selectedBrand]);
+  }, [selectedBrand, selectedDate.month]);
 
   const getFilteredData = () => {
     return data.filter(item => 

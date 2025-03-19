@@ -54,7 +54,7 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
     }
 
     loadBrands();
-  }, []);
+  }, [selectedBrand]);
 
   const addBrand = async (name: string) => {
     const sanitizedName = sanitizeBrandName(name);

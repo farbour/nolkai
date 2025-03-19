@@ -543,15 +543,15 @@ const OverviewPage: React.FC = () => {
   };
 
   // Calculate metrics based on all filtered data
-  const brandMetrics = useMemo(() => 
+  const brandMetrics = useMemo(() =>
     calculateBrandMetrics(filteredData),
-    [filteredData, getMonthsToFilter, getYearsToFilter]
+    [filteredData, getMonthsToFilter, getYearsToFilter, calculateBrandMetrics]
   );
 
   // Calculate metrics for the selected KPI type
   const kpiFilteredMetrics = useMemo(() =>
-    calculateBrandMetrics(kpiFilteredData), 
-    [kpiFilteredData, getMonthsToFilter, getYearsToFilter]
+    calculateBrandMetrics(kpiFilteredData),
+    [kpiFilteredData, getMonthsToFilter, getYearsToFilter, calculateBrandMetrics]
   );
 
   // Generate time series data for selected brands

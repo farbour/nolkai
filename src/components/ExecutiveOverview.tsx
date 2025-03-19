@@ -2,7 +2,7 @@ import "react-datepicker/dist/react-datepicker.css";
 
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 // file path: src/components/ExecutiveOverview.tsx
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { format, subMonths } from 'date-fns';
 
 import DatePicker from 'react-datepicker';
@@ -62,7 +62,7 @@ export const ExecutiveOverview: React.FC<Props> = ({ data }) => {
     return date >= start && date <= end;
   };
 
-  const calculateMetrics = (filteredData: CSVRow[]): Metric[] => {
+  const calculateMetrics = useCallback((filteredData: CSVRow[]): Metric[] => {
     const currentDate = new Date();
     const { month: currentMonth, year: currentYear } = getMonthYearFromDate(currentDate);
     const previousDate = subMonths(currentDate, 1);
@@ -128,7 +128,7 @@ export const ExecutiveOverview: React.FC<Props> = ({ data }) => {
     });
 
     return metrics;
-  };
+  }, []);
 
   const filteredData = useMemo(() => {
     let filtered = data;
@@ -149,7 +149,7 @@ export const ExecutiveOverview: React.FC<Props> = ({ data }) => {
 
   const metrics = useMemo(() => 
     calculateMetrics(filteredData),
-    [filteredData]
+    [filteredData, calculateMetrics]
   );
 
   const formatValue = (value: number, format: 'currency' | 'percentage' | 'number'): string => {

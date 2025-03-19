@@ -11,7 +11,7 @@ import {
   TrashIcon
 } from '@heroicons/react/24/outline';
 // file path: src/components/presentation/SlideControls.tsx
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 interface SlideControlsProps {
   currentSlide: number;
   totalSlides: number;
@@ -47,6 +47,21 @@ export const SlideControls: React.FC<SlideControlsProps> = ({
   canUndo,
   canRedo,
 }) => {
+  const handleDownload = useCallback(() => {
+    // Create a download link for the presentation content
+    const element = document.createElement('a');
+    const file = new Blob([JSON.stringify({
+      currentSlide,
+      totalSlides,
+      // Add other presentation data here
+    }, null, 2)], { type: 'application/json' });
+    element.href = URL.createObjectURL(file);
+    element.download = 'presentation.json';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }, [currentSlide, totalSlides]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -71,22 +86,7 @@ export const SlideControls: React.FC<SlideControlsProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onAddSlide, onToggleEditMode]);
-
-  const handleDownload = () => {
-    // Create a download link for the presentation content
-    const element = document.createElement('a');
-    const file = new Blob([JSON.stringify({
-      currentSlide,
-      totalSlides,
-      // Add other presentation data here
-    }, null, 2)], { type: 'application/json' });
-    element.href = URL.createObjectURL(file);
-    element.download = 'presentation.json';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-  };
+  }, [onAddSlide, onToggleEditMode, handleDownload]);
 
   return (
     <div className="h-16 bg-white border-b border-gray-200">

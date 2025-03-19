@@ -97,9 +97,13 @@ export function useBrandData(brandSlug: string | undefined) {
       // Clear the controller reference
       abortControllerRef.current = null;
       
+      // Store the current value of the ref in a local variable
+      const currentRef = { ...hasLoadedRef.current };
+      
       // Clean up the loaded state if component is truly unmounting
       if (mountedRef.current && brandName) {
-        delete hasLoadedRef.current[brandName];
+        delete currentRef[brandName];
+        hasLoadedRef.current = currentRef;
       }
     };
   }, [brand?.name, loadSavedAnalysis]);

@@ -157,7 +157,7 @@ const Presentation: React.FC<PresentationProps> = ({ slides: initialSlides, isAu
       setSlides(currentSlides => currentSlides.filter((_, index) => index !== currentSlide));
       setCurrentSlide(current => Math.min(current, slides.length - 2));
     }
-  }, [currentSlide, slides.length]);
+  }, [currentSlide, slides.length, slides]);
 
   // Mode toggles
   const togglePresentationMode = useCallback(async () => {
