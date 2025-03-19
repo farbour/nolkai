@@ -25,13 +25,8 @@ interface LayoutProps {
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: HomeIcon },
   { name: 'Overview', href: '/overview', icon: ChartBarIcon },
-  { name: 'E-commerce', href: '/ecommerce', icon: ShoppingBagIcon },
-  { name: 'Analysis', href: '/analysis', icon: PresentationChartBarIcon },
   { name: 'Report', href: '/report', icon: DocumentChartBarIcon },
-  { name: 'Presentations', href: '/presentations', icon: PresentationChartBarIcon },
-  { name: 'Brands', href: '/brands', icon: BuildingStorefrontIcon },
 ];
 
 const userNavigation = [

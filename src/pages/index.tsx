@@ -25,6 +25,7 @@ import { DashboardGrid } from '@/components/dashboard/DashboardGrid';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { DashboardSection } from '@/components/dashboard/DashboardSection';
 import { ForecastMetrics } from '@/components/dashboard/ForecastMetrics';
+import { GetServerSideProps } from 'next';
 import { GoalProgress } from '@/components/dashboard/GoalProgress';
 import { KPICard } from '@/components/dashboard/KPICard';
 import { MarketTrends } from '@/components/dashboard/MarketTrends';
@@ -34,6 +35,16 @@ import { TaskMatrix } from '@/components/dashboard/TaskMatrix';
 import { Tasks } from '@/components/dashboard/Tasks';
 
 // file path: src/pages/index.tsx
+
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    redirect: {
+      destination: '/overview',
+      permanent: false,
+    },
+  };
+};
 
 type TimeframeId = 'today' | 'week' | 'month' | 'quarter' | 'year';
 
