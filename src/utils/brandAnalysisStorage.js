@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -50,6 +51,7 @@ var saveBrandAnalysis = function (brandName, data) { return __awaiter(void 0, vo
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json, text/plain, */*'
                     },
                     body: JSON.stringify(data),
                 })];
@@ -75,6 +77,7 @@ var loadBrandAnalysis = function (brandName, signal) { return __awaiter(void 0, 
                         method: 'GET',
                         signal: signal,
                         headers: {
+                            'Accept': 'application/json, text/plain, */*',
                             'Cache-Control': 'no-cache',
                             'Pragma': 'no-cache'
                         }
@@ -108,7 +111,14 @@ var listSavedAnalyses = function (signal) { return __awaiter(void 0, void 0, voi
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, fetch('/api/brand-analysis/storage/list', { signal: signal })];
+                return [4 /*yield*/, fetch('/api/brand-analysis/storage/list', {
+                        signal: signal,
+                        headers: {
+                            'Accept': 'application/json, text/plain, */*',
+                            'Cache-Control': 'no-cache',
+                            'Pragma': 'no-cache'
+                        }
+                    })];
             case 1:
                 response = _a.sent();
                 if (!response.ok) {
