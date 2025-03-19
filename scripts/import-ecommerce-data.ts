@@ -1,3 +1,5 @@
+import type { RequestInfo, RequestInit } from 'node-fetch';
+
 import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import csv from 'csv-parser';
@@ -34,7 +36,7 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
     persistSession: false,
     autoRefreshToken: false,
   },
-  global: { fetch }
+  global: { fetch: fetch as unknown as typeof globalThis.fetch }
 });
 
 // CSV file paths

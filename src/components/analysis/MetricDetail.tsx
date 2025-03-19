@@ -1,12 +1,15 @@
 import {
   CategoryScale,
   Chart as ChartJS,
+  CoreScaleOptions,
   Legend,
   LineElement,
   LinearScale,
   PointElement,
+  Scale,
   Title,
   Tooltip,
+  TooltipItem
 } from 'chart.js';
 import React, { useMemo } from 'react';
 
